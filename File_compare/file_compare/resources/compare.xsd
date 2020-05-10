@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="formats">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="format" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="format">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="contents"/>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="file">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="formats"/>
+			</xs:sequence>
+			<xs:attribute name="type" type="xs:string" use="required"/>
+			<xs:attribute name="length" type="xs:int" use="required"/>
+			<xs:attribute name="contentnameposition" type="xs:int" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="elements">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="element" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="element">
+		<xs:complexType>
+			<xs:attribute name="agent" type="xs:boolean"/>
+			<xs:attribute name="oldvalue" type="xs:string"/>
+			<xs:attribute name="position" type="xs:int" use="required"/>
+			<xs:attribute name="output" type="xs:string"/>
+			<xs:attribute name="newvalue" type="xs:string"/>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="length" type="xs:int" use="required"/>
+			<xs:attribute name="docnum" type="xs:boolean"/>
+			<xs:attribute name="desc" type="xs:string"/>
+			<xs:attribute name="csidate" type="xs:boolean"/>
+			<xs:attribute name="commentdesc" type="xs:string"/>
+			<xs:attribute name="comment" type="xs:string"/>
+			<xs:attribute name="airline" type="xs:boolean"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="contents">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="content" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="content">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="elements"/>
+			</xs:sequence>
+			<xs:attribute name="elementname" type="xs:string"/>
+			<xs:attribute name="checkcanx" type="xs:boolean"/>
+			<xs:attribute name="name" type="xs:string" use="required"/>
+			<xs:attribute name="groupend" type="xs:boolean"/>
+			<xs:attribute name="group" type="xs:boolean"/>
+			<xs:attribute name="commentdesc" type="xs:string"/>
+			<xs:attribute name="comment" type="xs:string"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

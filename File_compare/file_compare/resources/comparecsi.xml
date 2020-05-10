@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<file type="csi" contentnameposition="0" length="0">
+	<formats>
+		<format name="cap">
+			<contents>
+				<content name="TFH">
+					<elements>
+						<element position="1" length="3" desc="Record Type" name="SMSG" />
+						<element position="4" length="8" desc="Record Number"
+							name="SQNR" output="Y" />
+						<element position="12" length="11" desc="Submitter ID"
+							name="BSNM" output="Y" />
+						<element position="23" length="21" desc="Reserved" name="BSPN"
+							output="Y" comment="D_CSI_16" commentdesc="BSP NAME is different"/>
+						<element position="44" length="9"
+							desc="Submitter File Reference Number" name="INVE" output="Y"
+							comment="D_CSI_23" commentdesc="INVN COUNTER is different"/>
+						<element position="53" length="9"
+							desc="Submitter File Sequence Number" name="INVC" output="Y"
+							comment="D_CSI_23" commentdesc="INVN COUNTER is different"/>
+						<element position="62" length="8" desc="File Creation Date"
+							name="RESD" output="Y" comment="" csidate="true" />
+						<element position="70" length="6" desc="File Creation Time"
+							name="PRDA" output="Y" comment="Test Procedure" commentdesc="TIME is different"/>
+						<element position="76" length="8" desc="File Version Number"
+							name="TIME" output="Y" comment="" />
+					</elements>
+				</content>
+
+
+				<content name="TAB" group="true" groupend="true">
+					<elements>
+						<element name="RECORD TYPE" position="1" length="3"
+							desc="RECORD TYPE" />
+						<element name="RECORD NUMBER" position="4" length="8"
+							desc="RECORD NUMBER" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element name="TRANSACTION IDENTIFIER" position="12"
+							length="15" desc="" />
+						<element name="FORMAT CODE" position="27" length="2" desc="" />
+						<element name="MEDIA CODE" position="29" length="2" desc="" />
+						<element name="SUBMISSION METHOD" position="31" length="2"
+							desc="" />
+						<element name="RESERVED1" position="33" length="10" desc="" />
+						<element name="APLC" position="43" length="6" desc="" />
+						<element name="CCAC" position="49" length="19" desc="" />
+						<element name="EXDA" position="68" length="4" desc="" />
+						<element name="INVD" position="72" length="8" desc="" />
+						<element name="TRANSACTION TIME" position="80" length="6"
+							desc="" comment="Test Procedure" commentdesc="TIME is different"/>
+						<element name="RESERVED2" position="86" length="3" desc="" />
+						<element name="TRANSACTION AMOUNT" position="89" length="12"
+							desc="" />
+
+						<element name="PROCESSING CODE" position="101" length="6"
+							desc="" />
+						<element name="TRANSACTION CURRENCY CODE" position="107"
+							length="3" desc="" />
+						<element name="EXTENDED PAYMENT DATA" position="110"
+							length="2" desc="" />
+						<element name="MERCHANT ID" position="112" length="15"
+							desc="" />
+						<element name="MERCHANT LOCATION ID" position="127"
+							length="15" desc="" comment="D_CSI_18" commentdesc="Agent Trading Name is different"/>
+						<element name="MERCHANT CONTACT INFORMATION" position="142"
+							length="40" desc="" />
+						<element name="TERMINAL ID" position="182" length="8"
+							desc="" />
+						<element name="POINT OF SERVICE DATA CODE" position="190"
+							length="12" desc="" />
+
+						<element name="RESERVED3" position="202" length="3" desc="" />
+						<element name="RESERVED4" position="205" length="12" desc="" />
+						<element name="RESERVED5" position="217" length="3" desc="" />
+						<element name="INVOICE/REFERENCE NUMBER" position="220"
+							length="30" desc="" />
+						<element name="RESERVED6" position="250" length="15" desc="" />
+						<element name="TAB IMAGE SEQUENCE NUMBER" position="265"
+							length="8" desc="" />
+						<element name="MATCHING_KEY_TYPE" position="273" length="2"
+							desc="" />
+						<element name="MATCHING_KEY" position="275" length="21"
+							desc="" />
+						<element name="ELECTRONIC COMMERCE INDICATOR" position="296"
+							length="2" desc="" />
+					</elements>
+				</content>
+
+
+				<content name="TAA" group="true" >
+					<elements>
+						<element name="RECORD TYPE" position="1" length="3"
+							desc="RECORD TYPE" />
+						<element name="RECORD NUMBER" position="4" length="8"
+							desc="RECORD NUMBER" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element name="TRANSACTION IDENTIFIER" position="12"
+							length="15" desc="TRANSACTION IDENTIFIER" />
+						<element name="FORMAT CODE" position="27" length="2" desc="" />
+						<element name="ADDENDA TYPE CODE" position="29" length="2"
+							desc="" />
+						<element name="TRANSACTION TYPE" position="31" length="3"
+							desc="" />
+						<element name="TICKET NUMBER" position="34" length="14"
+							desc="" docnum="true" />
+						<element name="DOCUMENT TYPE" position="48" length="2"
+							desc="" comment="D_CSI_46" commentdesc="ISIS can not find the archived original ticket"/>
+						<element name="AIRLINE PROCESS IDENTIFIER" position="50"
+							length="3" desc="" airline="true" />
+						<element name="IATA NUMERIC CODE" position="53" length="8"
+							desc="" />
+						<element name="TICKETING CARRIER NAME" position="61"
+							length="25" desc="" comment="D_CSI_14" commentdesc="airline name is different"/>
+						<element name="TICKET ISSUE CITY" position="86" length="18"
+							desc="" comment="D_CSI_19" commentdesc="Airline city name  is different"/>
+
+						<element name="TICKET ISSUE DATE" position="104" length="8"
+							desc="" />
+						<element name="NUMBER IN PARTY" position="112" length="3"
+							desc="" />
+						<element name="PASSENGER NAME" position="115" length="25"
+							desc="" />
+						<element name="CONJUNCTION TICKET INDICATOR" position="140"
+							length="1" desc="" />
+						<element name="RESERVED" position="141" length="3" desc="" />
+						<element name="ORIGINAL TRANSACTION AMOUNT" position="144"
+							length="12" desc="" />
+						<element name="ORIGINAL CURRENCY CODE" position="156"
+							length="3" desc="" />
+						<element name="ELECTRONIC TICKET INDICATOR" position="159"
+							length="1" desc="" comment="D_CSI_8" commentdesc="ISIS bug"/>
+						<element name="TOTAL NUMBER OF AIR SEGMENTS" position="160"
+							length="1" desc="" />
+
+						<element name="STOPOVER INDICATOR 1" position="161"
+							length="1" desc="STOPOVER INDICATOR 1" />
+						<element name="DEPARTURE LOCATION CODE SEGMENT 1"
+							position="162" length="3" desc="DEPARTURE LOCATION CODE SEGMENT 1" />
+						<element name="DEPARTURE DATE SEGMENT 1" position="165"
+							length="8" desc="DEPARTURE DATE SEGMENT 1" />
+						<element name="ARRIVAL LOCATION CODE SEGMENT 1" position="173"
+							length="3" desc="ARRIVAL LOCATION CODE SEGMENT 1" />
+						<element name="SEGMENT CARRIER CODE 1" position="176"
+							length="2" desc="SEGMENT CARRIER CODE 1" />
+						<element name="SEGMENT 1 FARE BASIS" position="178"
+							length="15" desc="SEGMENT 1 FARE BASIS" />
+						<element name="CLASS OF SERVICE CODE SEGMENT 1" position="193"
+							length="2" desc="CLASS OF SERVICE CODE SEGMENT 1" />
+						<element name="FLIGHT NUMBER SEGMENT 1" position="195"
+							length="4" desc="FLIGHT NUMBER SEGMENT 1" />
+						<element name="RESERVED1" position="199" length="3"
+							desc="RESERVED1" />
+						<element name="SEGMENT 1 FARE" position="202" length="12"
+							desc="SEGMENT 1 FARE" />
+
+						<element name="STOPOVER INDICATOR 2" position="214"
+							length="1" desc="STOPOVER INDICATOR 2" />
+						<element name="DEPARTURE LOCATION CODE SEGMENT 2"
+							position="215" length="3" desc="DEPARTURE LOCATION CODE SEGMENT 2" />
+						<element name="DEPARTURE DATE SEGMENT 2" position="218"
+							length="8" desc="DEPARTURE DATE SEGMENT 2" />
+						<element name="ARRIVAL LOCATION CODE SEGMENT 2" position="226"
+							length="3" desc="ARRIVAL LOCATION CODE SEGMENT 2" />
+						<element name="SEGMENT CARRIER CODE 2" position="229"
+							length="2" desc="SEGMENT CARRIER CODE 2" />
+						<element name="SEGMENT 2 FARE BASIS" position="231"
+							length="15" desc="SEGMENT 2 FARE BASIS" />
+						<element name="CLASS OF SERVICE CODE SEGMENT 2" position="246"
+							length="2" desc="CLASS OF SERVICE CODE SEGMENT 2" />
+						<element name="FLIGHT NUMBER SEGMENT 2" position="248"
+							length="4" desc="FLIGHT NUMBER SEGMENT 2" />
+						<element name="RESERVED2" position="252" length="3"
+							desc="RESERVED2" />
+						<element name="SEGMENT 2 FARE" position="255" length="12"
+							desc="SEGMENT 2 FARE" />
+
+						<element name="STOPOVER INDICATOR 3" position="267"
+							length="1" desc="STOPOVER INDICATOR 3" />
+						<element name="DEPARTURE LOCATION CODE SEGMENT 3"
+							position="268" length="3" desc="DEPARTURE LOCATION CODE SEGMENT 3" />
+						<element name="DEPARTURE DATE SEGMENT 3" position="271"
+							length="8" desc="DEPARTURE DATE SEGMENT 3" />
+						<element name="ARRIVAL LOCATION CODE SEGMENT 3" position="279"
+							length="3" desc="ARRIVAL LOCATION CODE SEGMENT 3" />
+						<element name="SEGMENT CARRIER CODE 3" position="282"
+							length="2" desc="SEGMENT CARRIER CODE 3" />
+						<element name="SEGMENT 3 FARE BASIS" position="284"
+							length="15" desc="SEGMENT 3 FARE BASIS" />
+						<element name="CLASS OF SERVICE CODE SEGMENT 3" position="299"
+							length="2" desc="CLASS OF SERVICE CODE SEGMENT 3" />
+						<element name="FLIGHT NUMBER SEGMENT 3" position="301"
+							length="4" desc="FLIGHT NUMBER SEGMENT 3" />
+						<element name="RESERVED3" position="305" length="3"
+							desc="RESERVED3" />
+						<element name="SEGMENT 3 FARE" position="308" length="12"
+							desc="SEGMENT 3 FARE" />
+
+						<element name="STOPOVER INDICATOR 4" position="320"
+							length="1" desc="STOPOVER INDICATOR 4" />
+						<element name="DEPARTURE LOCATION CODE SEGMENT 4"
+							position="321" length="3" desc="DEPARTURE LOCATION CODE SEGMENT 4" />
+						<element name="DEPARTURE DATE SEGMENT 4" position="324"
+							length="8" desc="DEPARTURE DATE SEGMENT 4" />
+						<element name="ARRIVAL LOCATION CODE SEGMENT 4" position="332"
+							length="3" desc="ARRIVAL LOCATION CODE SEGMENT 4" />
+						<element name="SEGMENT CARRIER CODE 4" position="335"
+							length="2" desc="SEGMENT CARRIER CODE 4" />
+						<element name="SEGMENT 4 FARE BASIS" position="337"
+							length="15" desc="SEGMENT 4 FARE BASIS" />
+						<element name="CLASS OF SERVICE CODE SEGMENT 4" position="352"
+							length="2" desc="CLASS OF SERVICE CODE SEGMENT 4" />
+						<element name="FLIGHT NUMBER SEGMENT 4" position="354"
+							length="4" desc="FLIGHT NUMBER SEGMENT 4" />
+						<element name="RESERVED4" position="358" length="3"
+							desc="RESERVED4" />
+						<element name="SEGMENT 4 FARE" position="361" length="12"
+							desc="SEGMENT 4 FARE" />
+
+						<element name="STOPOVER INDICATOR 5" position="373"
+							length="1" desc="" />
+						<element name="EXCHANGED/ORIGINAL TICKET NUMBER" position="374"
+							length="14" desc="" comment="D_CSI_ORTKT" commentdesc="ISIS can not find the archived original ticket"/>
+					</elements>
+				</content>
+
+
+				<content name="TAD">
+					<elements>
+						<element name="RECORD TYPE" position="1" length="3"
+							desc="RECORD TYPE" />
+						<element name="RECORD NUMBER" position="4" length="8"
+							desc="RECORD NUMBER" />
+						<element name="TRANSACTION IDENTIFIER" position="12"
+							length="15" desc="TRANSACTION IDENTIFIER" />
+
+						<element name="ADDITIONAL AMOUNT TYPE 1" position="27"
+							length="3" desc="ADDITIONAL AMOUNT TYPE 1" />
+						<element name="RESERVED1" position="30" length="3" desc="RESERVED1" />
+						<element name="ADDITIONAL AMOUNT 1" position="33" length="12"
+							desc="ADDITIONAL AMOUNT 1" />
+						<element name="ADDITIONAL AMOUNT SIGN 1" position="45"
+							length="1" desc="ADDITIONAL AMOUNT SIGN 1" />
+
+						<element name="ADDITIONAL AMOUNT TYPE 2" position="46"
+							length="3" desc="ADDITIONAL AMOUNT TYPE 2" />
+						<element name="RESERVED2" position="49" length="3" desc="RESERVED2" />
+						<element name="ADDITIONAL AMOUNT 2" position="52" length="12"
+							desc="ADDITIONAL AMOUNT 2" />
+						<element name="ADDITIONAL AMOUNT SIGN 2" position="64"
+							length="1" desc="ADDITIONAL AMOUNT SIGN 2" />
+
+						<element name="ADDITIONAL AMOUNT TYPE 3" position="65"
+							length="3" desc="ADDITIONAL AMOUNT TYPE 3" />
+						<element name="RESERVED3" position="68" length="3" desc="RESERVED3" />
+						<element name="ADDITIONAL AMOUNT 3" position="71" length="12"
+							desc="ADDITIONAL AMOUNT 3" />
+						<element name="ADDITIONAL AMOUNT SIGN 3" position="83"
+							length="1" desc="ADDITIONAL AMOUNT SIGN 3" />
+
+						<element name="ADDITIONAL AMOUNT TYPE 4" position="84"
+							length="3" desc="ADDITIONAL AMOUNT TYPE 4" />
+						<element name="RESERVED4" position="87" length="3" desc="RESERVED4" />
+						<element name="ADDITIONAL AMOUNT 4" position="90" length="12"
+							desc="ADDITIONAL AMOUNT 4" />
+						<element name="ADDITIONAL AMOUNT SIGN 4" position="102"
+							length="1" desc="ADDITIONAL AMOUNT SIGN 4" />
+
+						<element name="ADDITIONAL AMOUNT TYPE 5" position="103"
+							length="3" desc="ADDITIONAL AMOUNT TYPE 5" />
+						<element name="RESERVED5" position="106" length="3"
+							desc="RESERVED5" />
+						<element name="ADDITIONAL AMOUNT 5" position="109" length="12"
+							desc="ADDITIONAL AMOUNT 5" />
+						<element name="ADDITIONAL AMOUNT SIGN 5" position="121"
+							length="1" desc="ADDITIONAL AMOUNT SIGN 5" />
+					</elements>
+				</content>
+
+
+				<content name="TBT">
+					<elements>
+						<element name="RECORD TYPE" position="1" length="3"
+							desc="RECORD TYPE" />
+						<element name="RECORD NUMBER" position="4" length="8"
+							desc="RECORD NUMBER" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element name="MERCHANT ID" position="12" length="15"
+							desc="MERCHANT ID" />
+						<element name="RESERVED1" position="27" length="15" desc="RESERVED1" />
+						<element name="TBT IDENTIFICATION NUMBER" position="42"
+							length="15" desc="TBT IDENTIFICATION NUMBER" comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element name="TBT CREATION DATE" position="57" length="8"
+							desc="TBT CREATION DATE" />
+						<element name="TOTAL NO OF TABS" position="65" length="8"
+							desc="TOTAL NO OF TABS" />
+						<element name="RESERVED2" position="73" length="3" desc="RESERVED2" />
+						<element name="TBT AMOUNT" position="76" length="20"
+							desc="TBT AMOUNT" />
+						<element name="TBT AMOUNT SIGN" position="96" length="1"
+							desc="TBT AMOUNT SIGN" />
+						<element name="TBT CURRENCY CODE" position="97" length="3"
+							desc="TBT CURRENCY CODE" />
+
+						<element name="RESERVED3" position="100" length="3"
+							desc="RESERVED3" />
+						<element name="RESERVED4" position="103" length="20"
+							desc="RESERVED4" />
+						<element name="RESERVED5" position="123" length="3"
+							desc="RESERVED5" />
+						<element name="TBT IMAGE SEQUENCE NUMBER" position="126"
+							length="8" desc="TBT IMAGE SEQUENCE NUMBER" />
+					</elements>
+				</content>
+
+
+				<content name="TFS">
+					<elements>
+						<element name="RECORD TYPE" position="1" length="3"
+							desc="RECORD TYPE" />
+						<element name="RECORD NUMBER" position="4" length="8"
+							desc="RECORD NUMBER" />
+						<element name="NUMBER OF DEBITS" position="12" length="8"
+							desc="NUMBER OF DEBITS" />
+						<element name="RESERVED1" position="20" length="3" desc="RESERVED1" />
+						<element name="HASH TOTAL DEBIT AMOUNT" position="23"
+							length="20" desc="HASH TOTAL DEBIT AMOUNT" />
+						<element name="NUMBER OF CREDITS" position="43" length="8"
+							desc="NUMBER OF CREDITS" />
+						<element name="RESERVED2" position="51" length="3" desc="RESERVED2" />
+						<element name="HASH TOTAL CREDIT AMOUNT" position="54"
+							length="20" desc="HASH TOTAL CREDIT AMOUNT" />
+						<element name="RESERVED3" position="74" length="3" desc="RESERVED3" />
+						<element name="HASH TOTAL AMOUNT" position="77" length="20"
+							desc="HASH TOTAL AMOUNT" />
+					</elements>
+				</content>
+			</contents>
+		</format>
+
+		<format name="dish">
+			<contents>
+				<content name="CFH">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" />
+						<element position="12" length="20" desc="BSP Name" name="BSNM"
+							comment="D_CSI_16" commentdesc="BSP NAME is different"/>
+						<element position="32" length="4" desc="BSP Identification Number"
+							name="BSPN" comment="D_CSI_15" commentdesc="BSP CODE is different"/>
+						<element position="36" length="20" desc="Invoice Name"
+							name="INVE" comment="D_CSI_17"  commentdesc="CCO NAME is different"/>
+						<element position="56" length="5" desc="Invoice Code"
+							name="INVC" />
+						<element position="61" length="1" desc="Reserved Space"
+							name="RESD" />
+						<element position="62" length="6" desc="Processing Date"
+							name="PRDA" comment="Test Procedure" csidate="true" commentdesc="TIME is different"/>
+						<element position="68" length="4" desc="Processing Time"
+							name="TIME" comment="Test Procedure" commentdesc="TIME is different"/>
+						<element position="72" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="78" length="3" desc="Handbook Revision Number"
+							name="REVN" comment="D_CSI_revision" commentdesc="complete CSI is different"/>
+						<element position="81" length="4" desc="Test/Production Status"
+							name="TPST" />
+						<element position="85" length="172" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CIH">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="14" desc="Invoice Number"
+							name="INVN" comment="D_CSI_23" commentdesc="invoice number counter is different"/>
+						<element position="26" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="32" length="3" desc="Invoice Sequence Number"
+							name="ISQN" />
+						<element position="35" length="4" desc="Currency Type"
+							name="CUTP" />
+						<element position="39" length="6" desc="Reserved Space"
+							name="RESD" />
+						<element position="45" length="16"
+							desc="Airline/Credit Card Company Agreement Number" name="AGRN" />
+						<element position="61" length="20" desc="Invoice Name"
+							name="INVE" comment="D_CSI_17" commentdesc="PCC NAME/AIRLINE NAME is different"/>
+						<element position="81" length="176" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CBH">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="14" desc="Invoice Number"
+							name="INVN" comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element position="26" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="32" length="3" desc="Reserved Space"
+							name="RESD" />
+						<element position="35" length="20" desc="Invoice Name"
+							name="INVE" comment="D_CSI_17" commentdesc="CCO NAME/AIRLINE NAME is different"/>
+						<element position="55" length="8" desc="Agent Numeric Code"
+							name="AGTN" />
+						<element position="63" length="7" desc="Batch Number"
+							name="BTNR" comment="D_CSI_5" commentdesc="BTNR-line number is different by lacking record"/>
+						<element position="70" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="76" length="25" desc="Point of Sale Name"
+							name="POSN" comment="D_CSI_18" commentdesc="Agent Trading Name is different"/>
+						<element position="101" length="4" desc="Currency type"
+							name="CUTP" />
+						<element position="105" length="152" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CBR" group="true" groupend="true" comment="D_CSI_pymt" commentdesc="lack of payment">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="14" desc="Invoice Number"
+							name="INVN"  comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element position="26" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="32" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="38" length="8" desc="Agent Numeric Code"
+							name="AGTN" />
+						<element position="46" length="7" desc="Batch Number"
+							name="BTNR" comment="D_CSI_5" commentdesc="BTNR-line number is different by lacking record"/>
+						<element position="53" length="2" desc="Credit Card Company Code"
+							name="CCCC" />
+						<element position="55" length="19" desc="Credit Card Account Number"
+							name="CCAC" />
+						<element position="74" length="4" desc="Expiry Date" name="EXDA" />
+						<element position="78" length="6" desc="Approval Code"
+							name="APLC" />
+						<element position="84" length="2" desc="Extended Payment Code"
+							name="EXPC " />
+						<element position="86" length="15" desc="Ticket/Document Number"
+							name="TDNR" docnum="true"/>
+						<element position="101" length="6" desc="Date of Issue"
+							name="DAIS" />
+						<element position="107" length="49" desc="Passenger Name"
+							name="PXNM" />
+						<element position="156" length="2" desc="Debit/Credit code"
+							name="DBCR" />
+						<element position="158" length="11" desc="Signed for Amount"
+							name="SFAM" />
+						<element position="169" length="11" desc="Authorized Amount"
+							name="AUTA" comment="D_CSI_61"/>
+						<element position="180" length="27" desc="Customer File Reference"
+							name="CSTF" />
+						<element position="207" length="4" desc="Currency Type"
+							name="CUTP" />
+						<element position="211" length="5" desc="Flight Date"
+							name="FTDA" />
+						<element position="216" length="11" desc="Form of Payment Amount"
+							name="FPAM" />
+						<element position="227" length="4" desc="Currency Type"
+							name="CUTP" />
+						<element position="231" length="15"
+							desc="Related Ticket/Document Number" name="RTDN " />
+						<element position="246" length="1"
+							desc="Card Verification Value Result" name="CVVR" comment="D_CSI_56"/>
+						<element position="247" length="3" desc="Statistical Code"
+							name="STAT" />
+						<element position="250" length="7" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="COR" group="true" comment="D_CSI_5" commentdesc="new requirment deletes parameter">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="18" length="15" desc="Ticket/Document Number"
+							name="TDNR" docnum="true" />
+						<element position="33" length="3"
+							desc="Conjunction Ticket Indicator" name="CJCP" />
+						<element position="36" length="5" desc="Origin Airport/City Code"
+							name="ORAC" />
+						<element position="41" length="5"
+							desc="Destination Airport/City Code" name="DSTC" />
+						<element position="46" length="1" desc="Stopover Code"
+							name="STPO" />
+						<element position="47" length="2"
+							desc="Reservation Booking Designator" name="RBKD" />
+						<element position="49" length="4" desc="Carrier" name="CARR" />
+						<element position="53" length="15"
+							desc="Fare Basis/Ticket Designator" name="FBTD" />
+						<element position="68" length="5" desc="Origin Airport/City Code"
+							name="ORAC" />
+
+						<element position="85" length="15"
+							desc="Fare Basis/Ticket Designator" name="FBTD" />
+						<element position="100" length="5" desc="Origin Airport/City Code"
+							name="ORAC" />
+
+						<element position="117" length="15"
+							desc="Fare Basis/Ticket Designator" name="FBTD" />
+						<element position="132" length="5" desc="Origin Airport/City Code"
+							name="ORAC" />
+
+						<element position="149" length="15"
+							desc="Fare Basis/Ticket Designator" name="FBTD" />
+						<element position="164" length="1"
+							desc="Credit Card Corporate Contract" name="CRCC " />
+						<element position="165" length="2" desc="Address Verification Code"
+							name="AVCD" />
+						<element position="167" length="1" desc="Source of Approval Code"
+							name="SAPP" />
+						<element position="168" length="25"
+							desc="Form of Payment Transaction Information" name="FPTI" />
+						<element position="193" length="49" desc="Passenger Specific Data"
+							name="PXDA" comment="D_CSI_30" commentdesc="Display is different of special charactor"/>
+						<element position="242" length="15" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="COT" group="true" comment="D_CSI_5" commentdesc="new requirment deletes parameter">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="15" desc="Ticket/Document Number"
+							name="TDNR" docnum="true" />
+						<element position="27" length="8" desc="Tax/Miscellaneous Fee Type"
+							name="TMFT" />
+						<element position="35" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="49" length="8" desc="Tax/Miscellaneous Fee Type"
+							name="TMFT" />
+						<element position="57" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="71" length="8" desc="Tax/Miscellaneous Fee Type"
+							name="TMFT" />
+						<element position="79" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="93" length="8" desc="Tax/Miscellaneous Fee Type"
+							name="TMFT" />
+						<element position="101" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="115" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="123" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="137" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="145" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="159" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="167" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="181" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="189" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="203" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="211" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="225" length="8"
+							desc="Tax/Miscellaneous Fee Type" name="TMFT" />
+						<element position="233" length="14"
+							desc="Tax/Miscellaneous Fee Amount" name="TMFA" />
+						<element position="247" length="4" desc="Currency Type"
+							name="CUTP " />
+						<element position="251" length="6" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>                                                                                                                                                                                                                                      				
+				<content name="COA" group="true" comment="D_CSI_5" commentdesc="new requirment deletes parameter">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="15" desc="Ticket/Document Number"
+							name="TDNR" docnum="true" />
+						<element position="27" length="19" desc="AGTA"
+							name="AGTA"  comment="D_CSI_30" commentdesc="Display is different of special charactor"/>
+							
+						<element position="27" length="230" desc="Agency Data/Agent use"
+							name="COARECORD" newvalue="                                                                                                                                                                                                                                      				" 
+							comment="D_CSI_COA" commentdesc="Lack of COA record because of not matching of it from AGTA"/>
+						
+					</elements>
+				</content>
+				<content name="CBT">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="10" desc="Reserved Space"
+							name="RESD" />
+						<element position="22" length="14" desc="Invoice Number"
+							name="INVN" comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element position="36" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="42" length="7" desc="Batch Number"
+							name="BTNR" comment="D_CSI_5" commentdesc="BTNR-line number is different by lacking record"/>
+						<element position="49" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="55" length="6" desc="Total Debit Items"
+							name="TLDI" />
+						<element position="61" length="15" desc="Total Debit Amount"
+							name="TLDA" />
+						<element position="76" length="6" desc="Total Credit Items"
+							name="TLCI" />
+						<element position="82" length="15" desc="Total Credit Amount"
+							name="TLCA" />
+						<element position="97" length="4" desc="Currency Type"
+							name="CUTP" />
+						<element position="101" length="156" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CAT">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="8" desc="Agent Numeric code"
+							name="AGTN" />
+						<element position="20" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="26" length="14" desc="Invoice Number"
+							name="INVN" comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element position="40" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="46" length="6"
+							desc="Total Debit Items Per Agent" name="TDIA" />
+						<element position="52" length="15"
+							desc="Total Debit Amount Per Agent" name="TDAA" />
+						<element position="67" length="6"
+							desc="Total Credit Items Per Agent" name="TCIA" />
+						<element position="73" length="15"
+							desc="Total Credit Amount Per Agent" name="TCAA" />
+						<element position="88" length="7" desc="Agent First Batch Number"
+							name="AFBT" comment="D_CSI_5" commentdesc="CAT-line number is different by lacking record"/>
+						<element position="95" length="7" desc="Agent Last Batch Number"
+							name="ALBT" comment="D_CSI_5" commentdesc="CAT-line number is different by lacking record"/>
+						<element position="102" length="4" desc="Currency type"
+							name="CUTP" />
+						<element position="106" length="151" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CIT">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="14" desc="Invoice Number"
+							name="INVN" comment="D_CSI_23" commentdesc="INVN counter is different"/>
+						<element position="26" length="6" desc="Invoice Date"
+							name="INVD" comment="D_CSI_INDT"/>
+						<element position="32" length="3" desc="Invoice Sequence Number"
+							name="ISQN" comment="D_CSI_5" commentdesc="ISQN-line number is different by lacking record"/>
+						<element position="35" length="16"
+							desc="Airline/Credit Card Company Agreement Number" name="AGRN" />
+						<element position="51" length="20" desc="Invoice Name"
+							name="INVE" comment="D_CSI_17" commentdesc="CCO NAME/AIRLINE NAME is different"/>
+						<element position="71" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="77" length="5" desc="Batch Count Per Invoice"
+							name="BTCI" />
+						<element position="82" length="7"
+							desc="Total Debit Items Per Invoice" name="TDII" />
+						<element position="89" length="15"
+							desc="Total Debit Amount Per Invoice" name="TDAI" />
+						<element position="104" length="7"
+							desc="Total Credit Items Per Invoice" name="TCII" />
+						<element position="111" length="15"
+							desc="Total Credit Amount Per Invoice" name="TCAI" />
+						<element position="126" length="4" desc="Currency type"
+							name="CUTP" />
+						<element position="130" length="15"
+							desc="Total Discount Amount Per Invoice" name="TDSI" />
+						<element position="145" length="15"
+							desc="Total Tax on Discount Amount" name="TTDA" />
+						<element position="160" length="15"
+							desc="Total Net Amount Per Invoice" name="TNAI" />
+						<element position="175" length="2" desc="Debit/Credit Code"
+							name="DBCR" />
+						<element position="177" length="80" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+				<content name="CFT">
+					<elements>
+						<element position="1" length="3" desc="Standard Message Identifier"
+							name="SMSG" />
+						<element position="4" length="8" desc="Sequence Number"
+							name="SQNR" comment="D_CSI_5" commentdesc="line number is different by lacking record"/>
+						<element position="12" length="6"
+							desc="Billing Analysis Ending Date" name="BAED" />
+						<element position="18" length="20" desc="Reserved Space"
+							name="RESD" />
+						<element position="38" length="5" desc="Invoice Code"
+							name="INVC" />
+						<element position="43" length="1" desc="Reserved Space"
+							name="RESD" />
+						<element position="44" length="5" desc="Total Number of Batches"
+							name="TNBT" />
+						<element position="49" length="4" desc="Total Number of Invoices"
+							name="TNIV" />
+						<element position="53" length="15" desc="File Total Debit Amount"
+							name="FLDE" />
+						<element position="68" length="15" desc="File Total Credit Amount"
+							name="FLCR" />
+						<element position="83" length="174" desc="Reserved Space"
+							name="RESD" />
+					</elements>
+				</content>
+			</contents>
+		</format>
+	</formats>
+</file>

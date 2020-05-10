@@ -1,0 +1,2 @@
+include file_compare/compare.ini
+recursive-include file_compare/resources *
