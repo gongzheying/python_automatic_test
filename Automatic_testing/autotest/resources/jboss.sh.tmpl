@@ -1,0 +1,125 @@
+
+JAVA_HOME="$java_home"
+JBOSS_HOME="$jboss_home"
+JBOSS_CONFIG="$server_config"
+JBOSS_USER="$run_as_user"
+
+JBOSS_NAME="jboss-eap"
+JBOSS_PIDFILE="/var/run/jboss-eap/$$JBOSS_NAME.pid"
+JBOSS_SCRIPT="$$JBOSS_HOME/bin/standalone.sh"
+JBOSS_OPTS="-b 0.0.0.0 -bmanagement 0.0.0.0 "
+JBOSS_CONSOLE_LOG="$$JBOSS_HOME/standalone/log/console.log"
+JBOSS_MARKERFILE="$$JBOSS_HOME/standalone/tmp/startup-marker"
+
+STARTUP_WAIT=100
+SHUTDOWN_WAIT=30
+
+prog=$$JBOSS_NAME
+currenttime=$$(date +%s%N | cut -b1-13)
+
+start() {
+	echo -n "Starting $$prog: "
+	if [ -f $$JBOSS_PIDFILE ]; then
+		ppid=$$(cat $$JBOSS_PIDFILE)
+		if [ `ps --pid $$ppid 2> /dev/null | grep -c $$ppid 2> /dev/null` -eq '1' ]; then
+			echo -n "$$prog is already running"
+			echo
+			return 1
+		else
+			rm -f $$JBOSS_PIDFILE
+		fi
+	fi
+
+    mkdir -p $$(dirname $$JBOSS_CONSOLE_LOG)
+    cat /dev/null > $$JBOSS_CONSOLE_LOG
+
+    mkdir -p $$(dirname $$JBOSS_PIDFILE)
+    chown $$JBOSS_USER $$(dirname $$JBOSS_PIDFILE) || true
+
+ 
+	su - $$JBOSS_USER -c "cd $$JBOSS_HOME; LAUNCH_JBOSS_IN_BACKGROUND=1 JBOSS_PIDFILE=$$JBOSS_PIDFILE $$JBOSS_SCRIPT -c $$JBOSS_CONFIG $$JBOSS_OPTS " > $$JBOSS_CONSOLE_LOG 2>&1 &
+ 
+	count=0
+	launched=false
+
+	until [ $$count -gt $$STARTUP_WAIT ]
+	do
+		sleep 1
+		let count=$$count+1;
+		if [ -f $$JBOSS_MARKERFILE ]; then
+			markerfiletimestamp=$$(grep -o '[0-9]*' $$JBOSS_MARKERFILE) > /dev/null
+			if [ "$$markerfiletimestamp" -gt "$$currenttime" ] ; then
+				grep -i 'success:' $$JBOSS_MARKERFILE > /dev/null
+				if [ $$? -eq 0 ] ; then
+					launched=true
+					break
+				fi
+			fi
+		fi
+	done
+
+	if [ "$$launched" = "false" ] ; then
+		echo "$$prog started with errors, please see server log for details"
+	fi
+
+	return 0
+}
+
+stop() {
+	echo -n "Stopping $$prog: "
+	count=0;
+
+	if [ -f $$JBOSS_PIDFILE ]; then
+		kpid=$$(cat $$JBOSS_PIDFILE)
+		let kwait=$$SHUTDOWN_WAIT
+
+		# Try issuing SIGTERM
+		kill -15 $$kpid
+		until [ `ps --pid $$kpid 2> /dev/null | grep -c $$kpid 2> /dev/null` -eq '0' ] || [ $$count -gt $$kwait ]
+			do
+			sleep 1
+			let count=$$count+1;
+		done
+
+		if [ $$count -gt $$kwait ]; then
+			kill -9 $$kpid
+		fi
+	fi
+	rm -f $$JBOSS_PIDFILE
+	echo
+}
+
+status() {
+	if [ -f $$JBOSS_PIDFILE ]; then
+		ppid=$$(cat $$JBOSS_PIDFILE)
+		if [ `ps --pid $$ppid 2> /dev/null | grep -c $$ppid 2> /dev/null` -eq '1' ]; then
+			echo "$$prog is running (pid $$ppid)"
+			return 0
+		else
+			echo "$$prog dead but pid file exists"
+			return 1
+		fi
+	fi
+	echo "$$prog is not running"
+	return 3
+}
+
+case "$command" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	restart)
+		stop
+		start
+		;;
+	status)
+		status
+		;;
+	*)
+		echo "Unkown operation: $command"
+		exit 1
+		;;
+esac
