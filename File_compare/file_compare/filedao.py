@@ -112,8 +112,8 @@ class SplitFileInfoVO(SplitFileInfo):
         self.__new_old_name = value
 
 
-def add_new(entities):
-    # type: (list) -> None
+def add(entities, new):
+    # type: (list, bool) -> None
     conn = None
     try:
         conn = sqlite3.connect(DATABASE_NAME)
@@ -121,28 +121,12 @@ def add_new(entities):
         cursor = conn.cursor()
 
         data = [(e.path, e.root_path, e.full_name, e.file_name) for e in entities]
-        cursor.executemany("insert into FC_SPLIT_FILE_INF_NEW(path,rootpath,fullname,oldname) values(?,?,?,?);", data)
-        conn.commit()
-
-        cursor.close()
-
-    except sqlite3.Error as error:
-        print "Error while insert data - {}".format(error)
-    finally:
-        if conn:
-            conn.close()
-
-
-def add_old(entities):
-    # type: (list) -> None
-    conn = None
-    try:
-        conn = sqlite3.connect(DATABASE_NAME)
-
-        cursor = conn.cursor()
-
-        data = [(e.path, e.root_path, e.full_name, e.file_name) for e in entities]
-        cursor.executemany("insert into FC_SPLIT_FILE_INF_OLD(path,rootpath,fullname,oldname) values(?,?,?,?);", data)
+        if new:
+            cursor.executemany(
+                "insert into FC_SPLIT_FILE_INF_NEW(path,rootpath,fullname,oldname) values(?,?,?,?);", data)
+        else:
+            cursor.executemany(
+                "insert into FC_SPLIT_FILE_INF_OLD(path,rootpath,fullname,oldname) values(?,?,?,?);", data)
         conn.commit()
 
         cursor.close()
@@ -229,8 +213,8 @@ def into_same_record():
             conn.close()
 
 
-def query_more_new(more_files, index):
-    # type: (str,int) -> list
+def query_more_files(more_files, index, new):
+    # type: (str,int,bool) -> list
     conn = None
     res = list()
     try:
@@ -238,43 +222,26 @@ def query_more_new(more_files, index):
 
         cursor = conn.cursor()
 
-        cursor.execute("""
-        select path,rootpath,fullname,oldname from FC_SPLIT_FILE_INF_NEW 
-        where oldname not in ({})  
-          and path not in (select path from FC_SPLIT_FILE_INF_OLD)
-        limit 500 offset {}
-        """.format(more_files, index))
+        if new:
+            cursor.execute("""
+            select path,rootpath,fullname,oldname from FC_SPLIT_FILE_INF_NEW 
+            where oldname not in ({})  
+              and path not in (select path from FC_SPLIT_FILE_INF_OLD)
+            limit 500 offset {}
+            """.format(more_files, index))
+            entity_type = SplitFileInfoNew
+        else:
+            cursor.execute("""
+            select path,rootpath,fullname,oldname from FC_SPLIT_FILE_INF_NEW 
+            where oldname not in ({})  
+              and path not in (select path from FC_SPLIT_FILE_INF_OLD)
+            limit 500 offset {}
+            """.format(more_files, index))
+            entity_type = SplitFileInfoOld
+
         rows = cursor.fetchall()
         for row in rows:
-            res.append(SplitFileInfoNew(row[0], row[1], row[2], row[3]))
-        cursor.close()
-
-    except sqlite3.Error as error:
-        print "Error while fetch data - {}".format(error)
-    finally:
-        if conn:
-            conn.close()
-    return res
-
-
-def query_more_old(more_files, index):
-    # type: (str,int) -> list
-    conn = None
-    res = list()
-    try:
-        conn = sqlite3.connect(DATABASE_NAME)
-
-        cursor = conn.cursor()
-
-        cursor.execute("""
-        select path,rootpath,fullname,oldname from FC_SPLIT_FILE_INF_OLD 
-        where oldname not in ({})  
-          and path not in (select path from FC_SPLIT_FILE_INF_NEW)
-        limit 500 offset {}
-        """.format(more_files, index))
-        rows = cursor.fetchall()
-        for row in rows:
-            res.append(SplitFileInfoOld(row[0], row[1], row[2], row[3]))
+            res.append(entity_type(row[0], row[1], row[2], row[3]))
         cursor.close()
 
     except sqlite3.Error as error:

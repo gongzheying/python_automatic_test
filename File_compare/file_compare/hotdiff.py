@@ -2,6 +2,8 @@ import os
 import csv
 from file_compare import filedao
 from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew, SplitFileInfoVO
+from file_compare.filestructure import CompareRoot, RecordFormat, RecordContent, CompareElement, CompareRecord
+
 
 class CompareDiff:
     CONF_PATH = "config.txt"
@@ -9,7 +11,16 @@ class CompareDiff:
     NEW_DEFAULT_PATH = "./newPath"
     RESULT_DEFAULT_PATH = "./result"
 
-    COLUMNS = ("Airline code","Agent code","Document number","Record number","Field Name","ISIS value","ISIS2 value","Comments","ISIS File Name")
+    COLUMNS = (
+        "Airline code",
+        "Agent code",
+        "Document number",
+        "Record number",
+        "Field Name",
+        "ISIS value",
+        "ISIS2 value",
+        "Comments",
+        "ISIS File Name")
 
     def __init__(self):
         self.__old_split_dir = self.OLD_DEFAULT_PATH
@@ -40,27 +51,42 @@ class CompareDiff:
                     self.__result_path = line[line.index('=') + 1:].strip()
 
         with open(os.path.join(self.__result_path, "diff.csv"), "w+t") as diff_file:
-            diff_writer = csv.DictWriter(diff_file,self.COLUMNS)
+            diff_writer = csv.DictWriter(diff_file, self.COLUMNS)
 
             diff_writer.writeheader()
+            self.__process_compare(diff_writer)
 
-    def process_compare(self):
+    def __process_compare(self, diff_writer):
+        # type: (csv.DictWriter) -> None
+
         filedao.clear_data()
 
         # Get all files
-        old_map = self.__refresh_old_file_list()
-        new_map = self.__refresh_new_file_list()
+        new_map = self.__refresh_file_list(self.new_split_dir, True)
+        old_map = self.__refresh_file_list(self.old_split_dir, False)
 
         # Put the comparison in the same table
         filedao.into_same_record()
 
         # Processing missing files
+        self.__compare_more_file(new_map, old_map, diff_writer, True)
+        self.__compare_more_file(old_map, new_map, diff_writer, False)
 
+        # Contract
+        page = 0
+        index = 0
+        count = filedao.count_same_record()
+        while index <= count:
+            index = page * 500
+            same_list = filedao.query_same_record(index)
+            for vo in same_list:
+                compareFile(vo.full_name, vo.new_full_name)
 
-    def __refresh_file_list(self, split_root_dir, entity_type):
-        # type: (str,type)->dict
+    def __refresh_file_list(self, split_root_dir, new):
+        # type: (str,bool)->dict
         entities = list()
         files = dict()
+        entity_type = SplitFileInfoNew if new else SplitFileInfoOld
         for root, dirs, files in os.walk(split_root_dir):
             for name in files:
                 path = os.path.join(root, name)
@@ -69,75 +95,158 @@ class CompareDiff:
                 file_name = key[1:key.index(os.path.sep, 2)]
 
                 entities.append(entity_type(key, split_root_dir, path, file_name))
-                files[file_name]=key
+                files[file_name] = key
 
         if len(entities) > 0:
-            filedao.add_old(entities)
+            filedao.add(entities, new)
         return files
 
-    def __refresh_old_file_list(self):
-        # type: ()->dict
-        entities = list()
-        files = dict()
-        for root, dirs, files in os.walk(self.old_split_dir):
-            for name in files:
-                path = os.path.join(root, name)
+    def __compare_more_file(self, file_map, ref_file_map, diff_writer, new):
+        # type: (dict,dict,csv.DictWriter,bool)->None
 
-                key = path[len(self.old_split_dir):]
-                file_name = key[1:key.index(os.path.sep, 2)]
-
-                entities.append(SplitFileInfoOld(key, self.old_split_dir, path, file_name))
-                files[file_name]=key
-
-        if len(entities) > 0:
-            filedao.add_old(entities)
-        return files
-
-    def __refresh_new_file_list(self):
-        # type: ()->dict
-        entities = list()
-        files = dict()
-        for root, dirs, files in os.walk(self.new_split_dir):
-            for name in files:
-                path = os.path.join(root, name)
-
-                key = path[len(self.new_split_dir):]
-                file_name = key[1:key.index(os.path.sep, 2)]
-
-                entities.append(SplitFileInfoNew(key, self.new_split_dir, path, file_name))
-                files[file_name]=key
-
-        if len(entities) > 0:
-            filedao.add_new(entities)
-        return files
-
-    def compare_more_new_file(self, old_map, new_map):
-        # type: (dict,dict)->None
+        #  Less entire source files
         file_names = ['temp']
-        for key in new_map:
-            if not old_map.has_key(key):
+        for key in file_map:
+            if key not in ref_file_map:
                 file_names.append("'{}'".format(key))
-        more_new_files =  ",".join(file_names)
+                if new:
+                    diff_writer.writerow({
+                        "ISIS value": "N",
+                        "ISIS2 value": "Y",
+                        "ISIS File Name": key
+                    })
+                else:
+                    diff_writer.writerow({
+                        "ISIS value": "Y",
+                        "ISIS2 value": "N",
+                        "ISIS File Name": key
+                    })
+
+        more_files = ",".join(file_names)
+
+        # Less tickets
         i = 0
         p = 0
         size = 500
         while size >= 500:
             i = p * 500
-            new_infos = filedao.query_more_new(more_new_files, i)
-            size = len(new_infos)
-            for new_info in new_infos:
-                new_info = SplitFileInfoNew()
-                new_value = new_info.full_name
-                agent = ""
-                key = new_info.path
-                newFileNames = key.split(os.path.sep)
-                newFileName = newFileNames[1]
-                if len(newFileNames)>3:
-                    agent = newFileNames[2]
-                docnum = newFileNames[len(newFileNames)-1].replace(".txt","")
+            file_infos = filedao.query_more_files(more_files, i, new)
+            size = len(file_infos)
+            for file_info in file_infos:
+                hot_file_full_name = file_info.full_name
+                agent_code = ""
+
+                # /origin_hot_file/agent_code/ticket_number/***
+                key = file_info.path
+
+                path_name_array = key.split(os.path.sep)
+                hot_file_name = path_name_array[1]
+                if len(path_name_array) > 3:
+                    agent_code = path_name_array[2]
+                doc_num = path_name_array[len(path_name_array) - 1].replace(".txt", "")
+                comment = self.__get_comment(hot_file_full_name)
+
+                if new:
+                    diff_writer.writerow({
+                        "Agent code": agent_code,
+                        "Document number": doc_num,
+                        "ISIS value": "N",
+                        "ISIS2 value": "Y",
+                        "Comments": comment,
+                        "ISIS File Name": hot_file_name
+                    })
+                else:
+                    diff_writer.writerow({
+                        "Agent code": agent_code,
+                        "Document number": doc_num,
+                        "ISIS value": "Y",
+                        "ISIS2 value": "N",
+                        "Comments": comment,
+                        "ISIS File Name": hot_file_name
+                    })
+
+            p += 1
+
+    def __get_document_root(self):
+        # type: () -> CompareRoot
+        return CompareRoot.get_hot_root()
+
+    def __get_document_format(self):
+        # type : () -> RecordFormat
+        return self.__get_document_root().format("default")
 
 
-#"Airline code,Agent code,Document number,Record number,Field Name,ISIS value,ISIS2 value,Comments,ISIS File Name");
+
+    def __get_comment(self, file_name):
+        # type: (str) -> str
+        result = ""
+        with open(file_name, "rt") as file:
+            for line in file:
+                if len(line) < 3:
+                    continue
+        return result
+
+    def __get_cstring(self, record_format, line, name_position, name_length):
+        # type : (RecordFormat, str,int,int) -> str
+        element = self.__get_element_name(line, name_position, name_length)
+        if "BKS24" == element or "BOT93" == element or "BAR64" == element or "BAR65" == element:
+            record_conent = record_format.element(element)
+            record = CompareRecord(line, record_conent)
+            iscanx = "CANX" == record.element(record_conent.element_name)
+            if iscanx:
+                return record_conent.comment
+        return ""
+
+    def __get_element_name(self, line, name_position, name_length):
+        # type : (str,int,int) -> str
+        element = line[0:3]
+        if name_position > 0:
+            element += line[name_position - 1: name_position + name_length - 1]
+        return element
+
+    # public static String getCString(RecordFromat recordFromat, String line, int namePosition, int nameLength) {
+    # 	String element = getElement(line, namePosition, nameLength);
+    # 	if ("BKS24".equals(element) || "BOT93".equals(element) || "BAR64".equals(element) || "BAR65".equals(element)) {
+    #
+# 		RecordContent recordContent = recordFromat.getElement(element);
+# 		CompareRecord record = new CompareRecord(line, recordContent);
+# 		boolean iscanx = "CANX".equals(record.getElement(recordContent.getElementname()));
+# 		if (iscanx) {
+# 			return recordContent.getComment();
+# 		}
+# 	}
+# 	return "";
+# }
+#
+# private static String getElement(String line, int namePosition, int nameLength) {
+# 	String element = line.substring(0, 3);
+# 	if (namePosition > 0) {
+# 		element = element + line.substring((namePosition - 1), (namePosition + nameLength - 1));
+# 	}
+# 	return element;
+# }
+
+# private static String getComment(String fileName) {
+# 	String result = "";
+# 	CompareRoot root = CompareRoot.getCsiRoot(type);
+# 	RecordFromat recordFromat = root.getElement(format);
+# 	List<String> lineList = FileUtils.readFile(fileName);
+# 	int namePosition = recordFromat.getRoot().getContentnameposition();
+# 	int nameLength = recordFromat.getRoot().getLength();
+# 	for (String line : lineList) {
+# 		if (line.length() < 3) {
+# 			continue;
+# 		}
+# 		String comment = getCString(recordFromat, line, namePosition, nameLength);
+# 		if (!StringUtils.isBlank(comment)) {
+# 			result = comment;
+# 		}
+# 	}
+#
+# 	return result;
+# }
+
+# "Airline code,Agent code,Document number,Record number,Field Name,ISIS value,ISIS2 value,Comments,ISIS File Name");
 # 	private static void compareMoreNewFile(SplitFileInfoDao dao) {
 # 		// Less entire source files
 # 		String filenames = "";
