@@ -8,7 +8,7 @@ class CompareRoot:
     __formats = dict()
 
     def __init__(self, type, length, content_name_position, formats=list()):
-        # type: (str,int,int.list) -> CompareRoot
+        # type: (str,int,int,list) -> CompareRoot
         self.__type = type
         self.__length = length
         self.__content_name_position = content_name_position
