@@ -5,28 +5,51 @@ from file_compare import filedao
 from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew
 from file_compare.filestructure import CompareRoot, CompareRecord, RecordContent
 
+CONF_PATH = "config.txt"
+OLD_DEFAULT_PATH = "./oldPath"
+NEW_DEFAULT_PATH = "./newPath"
+RESULT_DEFAULT_PATH = "./result"
+
+COLUMNS = (
+    "Airline code", "Agent code", "Document number", "Record number",
+    "Field Name", "ISIS value", "ISIS2 value", "Comments", "ISIS File Name")
+
+
+def run(conf_path=CONF_PATH):
+    old_split_dir = OLD_DEFAULT_PATH
+    new_split_dir = NEW_DEFAULT_PATH
+    result_path = RESULT_DEFAULT_PATH
+
+    with open(conf_path, "rt") as conf_file:
+        for line in conf_file:
+            if line.startswith("oldPath="):
+                old_split_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("newPath="):
+                new_split_dir = line[line.index("=") + 1:].strip()
+            if line.startsWith("resultPath="):
+                result_path = line[line.index('=') + 1:].strip()
+
+    with open(os.path.join(result_path, "diff.csv"), "w+t") as diff_file:
+        diff_writer = DictWriter(diff_file, COLUMNS)
+
+        diff_writer.writeheader()
+
+        CompareDiff(old_split_dir, new_split_dir, result_path).process_compare(diff_writer)
+
 
 class CompareDiff:
-    CONF_PATH = "config.txt"
-    OLD_DEFAULT_PATH = "./oldPath"
-    NEW_DEFAULT_PATH = "./newPath"
-    RESULT_DEFAULT_PATH = "./result"
 
-    COLUMNS = (
-        "Airline code",
-        "Agent code",
-        "Document number",
-        "Record number",
-        "Field Name",
-        "ISIS value",
-        "ISIS2 value",
-        "Comments",
-        "ISIS File Name")
-
-    def __init__(self):
-        self.__old_split_dir = self.OLD_DEFAULT_PATH
-        self.__new_split_dir = self.NEW_DEFAULT_PATH
-        self.__result_path = self.RESULT_DEFAULT_PATH
+    def __init__(self, old_split_dir, new_split_dir, result_path):
+        # type: (str,str,str) -> CompareDiff
+        self.__old_split_dir = old_split_dir
+        self.__new_split_dir = new_split_dir
+        self.__result_path = result_path
+        self.__curFileName = ""
+        self.__oldFileName = ""
+        self.__agentCode = ""
+        self.__docNum = ""
+        self.__airlineCode = ""
+        self.__loglist = list()
 
     @property
     def old_split_dir(self):
@@ -40,24 +63,7 @@ class CompareDiff:
     def result_path(self):
         return self.__result_path
 
-    def run(self, conf_path=CONF_PATH):
-
-        with open(conf_path, "rt") as conf_file:
-            for line in conf_file:
-                if line.startswith("oldPath="):
-                    self.__old_split_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("newPath="):
-                    self.__new_split_dir = line[line.index("=") + 1:].strip()
-                if line.startsWith("resultPath="):
-                    self.__result_path = line[line.index('=') + 1:].strip()
-
-        with open(os.path.join(self.__result_path, "diff.csv"), "w+t") as diff_file:
-            diff_writer = DictWriter(diff_file, self.COLUMNS)
-
-            diff_writer.writeheader()
-            self.__process_compare(diff_writer)
-
-    def __process_compare(self, diff_writer):
+    def process_compare(self, diff_writer):
         # type: (DictWriter) -> None
 
         filedao.clear_data()
@@ -211,18 +217,18 @@ class CompareDiff:
 
         self.__process_log(old_file, diff_writer)
 
-        curFileName = old_file
+        self.__curFileName = old_file
 
         # agentCode,document number
         fileNames = old_file.split(os.path.sep)
 
-        oldFileName = fileNames[1];
+        self.__oldFileName = fileNames[1]
 
-        agentCode = "";
+        self.__agentCode = ""
         if len(fileNames.length) > 3:
-            agentCode = fileNames[2]
+            self.__agentCode = fileNames[2]
 
-        docNum = fileNames[len(fileNames) - 1].replace(".txt", "");
+        self.__docNum = fileNames[len(fileNames) - 1].replace(".txt", "")
 
         # read file
         old_list = [line.strip() for line in open(old_file) if len(line.strip()) > 0]
@@ -237,17 +243,17 @@ class CompareDiff:
 
         # If the current file and the previous file directory are different, replace
         # the airline code, output logs, empty the log list and airline code.
-        if "" != curFileName:
-            curpath = os.path.split(curFileName)[0]
+        if "" != self.__curFileName:
+            curpath = os.path.split(self.__curFileName)[0]
             path = os.path.split(filename)[0]
             if curpath != path:
-                for log in loglist:
-                    log["Airline code"] = airlineCode
+                for log in self.__loglist:
+                    log["Airline code"] = self.__airlineCode
 
                     diff_writer.writerow(log)
 
-                airlineCode = ""
-                loglist = list()
+                self.__airlineCode = ""
+                self.__loglist = list()
 
     def __isCanx(self, recordContent, record, newrcc, newRecord):
         # type: (RecordContent, CompareRecord, RecordContent, CompareRecord) -> bool
@@ -307,24 +313,24 @@ class CompareDiff:
                        self.__isCanx(recordContent, record, newrecordContent, newRecord)):
 
                     # Find a correspondence in the old record, indicating that the current old record is out, record and skip the old record
-                    if (self.__findSameRecord(recordFromat, newelement, newRecord, oldList, namePosition,
-                                              nameLength) and
+                    if (self.__findSameRecord(record_format, newelement, newRecord, old_list, name_position,
+                                              name_length) and
                             not self.__isCanx(recordContent, record, newrecordContent, newRecord)):
                         index += 1
                         error = dict()
 
-                        error["Agent code"] = agentCode
-                        error["Document number"] = docNum
+                        error["Agent code"] = self.__agentCode
+                        error["Document number"] = self.__docNum
                         error["Record number"] = element
                         error["Field Name"] = ""
                         error["ISIS value"] = line
                         error["ISIS2 value"] = "N"
                         error["Comments"] = ""
-                        error["ISIS File Name"] = oldFileName
+                        error["ISIS File Name"] = self.__oldFileName
                         if "BAR65" == element or "BAR64" == element:
                             error["Comments"] = "D_HOT_3"
 
-                        loglist.append(error)
+                        self.__loglist.append(error)
                         isbreak = True
                         break
 
@@ -340,16 +346,16 @@ class CompareDiff:
                                 comment = ""
 
                         error = dict()
-                        error["Agent code"] = agentCode
-                        error["Document number"] = docNum
+                        error["Agent code"] = self.__agentCode
+                        error["Document number"] = self.__docNum
                         error["Record number"] = newelement
                         error["Field Name"] = ""
                         error["ISIS value"] = "N"
                         error["ISIS2 value"] = newLine
                         error["Comments"] = comment
-                        error["ISIS File Name"] = oldFileName
+                        error["ISIS File Name"] = self.__oldFileName
 
-                        loglist.append(error)
+                        self.__loglist.append(error)
                         newindex += 1
                         if newindex >= len(new_list):
                             isbreak = True
@@ -377,30 +383,30 @@ class CompareDiff:
                 comment = self.__get_cstring(record_format, old_list[i], name_position, name_length)
 
                 error = dict()
-                error["Agent code"] = agentCode
-                error["Document number"] = docNum
+                error["Agent code"] = self.__agentCode
+                error["Document number"] = self.__docNum
                 error["Record number"] = ""
                 error["Field Name"] = ""
                 error["ISIS value"] = "Y"
                 error["ISIS2 value"] = "N"
                 error["Comments"] = comment
-                error["ISIS File Name"] = oldFileName
-                loglist.append(error)
+                error["ISIS File Name"] = self.__oldFileName
+                self.__loglist.append(error)
 
         if newindex != len(new_list):
             for i in range(newindex, len(new_list)):
                 comment = self.__get_cstring(record_format, new_list[i], name_position, name_length)
 
                 error = dict()
-                error["Agent code"] = agentCode
-                error["Document number"] = docNum
+                error["Agent code"] = self.__agentCode
+                error["Document number"] = self.__docNum
                 error["Record number"] = ""
                 error["Field Name"] = ""
                 error["ISIS value"] = "N"
                 error["ISIS2 value"] = "Y"
                 error["Comments"] = comment
-                error["ISIS File Name"] = oldFileName
-                loglist.append(error)
+                error["ISIS File Name"] = self.__oldFileName
+                self.__loglist.append(error)
 
     def __compareElement(self, index, record, newRecord):
         # type : (int, CompareRecord,CompareRecord) -> None
@@ -412,7 +418,7 @@ class CompareDiff:
             value = map.get(key)
             newValue = newMap.get(key)
             if record.airline(key):
-                airlineCode = "air:{}".format(value)
+                self.__airlineCode = "air:{}".format(value)
 
             if value is not None and newValue is not None:
                 if value != newValue:
@@ -433,12 +439,12 @@ class CompareDiff:
                         comment = "D_HOT_69"
 
                     error = dict()
-                    error["Agent code"] = agentCode
-                    error["Document number"] = docNum
+                    error["Agent code"] = self.__agentCode
+                    error["Document number"] = self.__docNum
                     error["Record number"] = record.getContent().getName()
                     error["Field Name"] = key
                     error["ISIS value"] = value
                     error["ISIS2 value"] = newValue
                     error["Comments"] = comment
-                    error["ISIS File Name"] = oldFileName
-                    loglist.append(error)
+                    error["ISIS File Name"] = self.__oldFileName
+                    self.__loglist.append(error)
