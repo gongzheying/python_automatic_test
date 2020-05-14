@@ -29,7 +29,7 @@ def run(conf_path=CONF_PATH):
             if line.startsWith("resultPath="):
                 result_path = line[line.index('=') + 1:].strip()
 
-    with open(os.path.join(result_path, "diff.csv"), "w+t") as diff_file:
+    with open(os.path.join(result_path, "hot_diff.csv"), "w+t") as diff_file:
         diff_writer = DictWriter(diff_file, COLUMNS)
 
         diff_writer.writeheader()
@@ -44,12 +44,12 @@ class CompareDiff:
         self.__old_split_dir = old_split_dir
         self.__new_split_dir = new_split_dir
         self.__result_path = result_path
-        self.__curFileName = ""
-        self.__oldFileName = ""
-        self.__agentCode = ""
-        self.__docNum = ""
-        self.__airlineCode = ""
-        self.__loglist = list()
+        self.__cur_file_name = ""
+        self.__old_file_name = ""
+        self.__agent_code = ""
+        self.__doc_num = ""
+        self.__airline_code = ""
+        self.__logs = list()
 
     @property
     def old_split_dir(self):
@@ -93,16 +93,19 @@ class CompareDiff:
         # type: (str,bool)->dict
         entities = list()
         files = dict()
-        entity_type = SplitFileInfoNew if new else SplitFileInfoOld
         for root, dirs, files in os.walk(split_root_dir):
             for name in files:
-                path = os.path.join(root, name)
+                # split_root_dir/origin_hot_file/agent_code/ticket_number/***
+                full_name = os.path.join(root, name)
 
-                key = path[len(split_root_dir):]
-                file_name = key[1:key.index(os.path.sep, 2)]
+                path = full_name[len(split_root_dir):]
+                file_name = path[1:path.index(os.path.sep, 2)]
 
-                entities.append(entity_type(key, split_root_dir, path, file_name))
-                files[file_name] = key
+                if new:
+                    entities.append(SplitFileInfoNew(path, split_root_dir, full_name, file_name))
+                else:
+                    entities.append(SplitFileInfoOld(path, split_root_dir, full_name, file_name))
+                files[file_name] = path
 
         if len(entities) > 0:
             filedao.add(entities, new)
@@ -217,18 +220,18 @@ class CompareDiff:
 
         self.__process_log(old_file, diff_writer)
 
-        self.__curFileName = old_file
+        self.__cur_file_name = old_file
 
         # agentCode,document number
-        fileNames = old_file.split(os.path.sep)
+        file_names = old_file.split(os.path.sep)
 
-        self.__oldFileName = fileNames[1]
+        self.__old_file_name = file_names[1]
 
-        self.__agentCode = ""
-        if len(fileNames.length) > 3:
-            self.__agentCode = fileNames[2]
+        self.__agent_code = ""
+        if len(file_names.length) > 3:
+            self.__agent_code = file_names[2]
 
-        self.__docNum = fileNames[len(fileNames) - 1].replace(".txt", "")
+        self.__doc_num = file_names[len(file_names) - 1].replace(".txt", "")
 
         # read file
         old_list = [line.strip() for line in open(old_file) if len(line.strip()) > 0]
@@ -243,45 +246,45 @@ class CompareDiff:
 
         # If the current file and the previous file directory are different, replace
         # the airline code, output logs, empty the log list and airline code.
-        if "" != self.__curFileName:
-            curpath = os.path.split(self.__curFileName)[0]
+        if "" != self.__cur_file_name:
+            curpath = os.path.split(self.__cur_file_name)[0]
             path = os.path.split(filename)[0]
             if curpath != path:
-                for log in self.__loglist:
-                    log["Airline code"] = self.__airlineCode
+                for log in self.__logs:
+                    log["Airline code"] = self.__airline_code
 
                     diff_writer.writerow(log)
 
-                self.__airlineCode = ""
-                self.__loglist = list()
+                self.__airline_code = ""
+                self.__logs = list()
 
-    def __isCanx(self, recordContent, record, newrcc, newRecord):
+    def __is_canx(self, record_content, record, new_record_content, new_record):
         # type: (RecordContent, CompareRecord, RecordContent, CompareRecord) -> bool
-        iscanxold = "CANX" == record.element(recordContent.element_name)
-        iscanxnew = "CANX" == newRecord.element(newrcc.element_name)
-        return not iscanxold and iscanxnew
+        is_canx_old = "CANX" == record.element(record_content.element_name)
+        is_canx_new = "CANX" == new_record.element(new_record_content.element_name)
+        return not is_canx_old and is_canx_new
 
-    def __isSameTrnc(self, oldRecord, newRecord):
+    def __is_same_trnc(self, old_record, new_record):
         # type:  (CompareRecord,CompareRecord) -> bool
 
-        trncOld = oldRecord.element("TRNC")
-        trncNew = newRecord.element("TRNC")
-        if trncOld is None and trncNew is None:
+        trnc_old = old_record.element("TRNC")
+        trnc_new = new_record.element("TRNC")
+        if trnc_old is None and trnc_new is None:
             return True
 
-        if trncOld is not None and trncNew is not None and trncOld == trncNew:
+        if trnc_old is not None and trnc_new is not None and trnc_old == trnc_new:
             return True
 
         return False
 
-    def __findSameRecord(self, recordFormat, newelement, newRecord, oldList, namePosition, nameLength):
+    def __file_same_record(self, record_format, new_element, new_record, old_list, name_position, name_length):
         # type : (RecordFormat, str,CompareRecord,list, int, int) -> bool
-        for line in oldList:
-            element = self.__get_element(line, namePosition, nameLength)
-            recordContent = recordFormat.content(element)
-            record = CompareRecord(line, recordContent)
-            if newelement == self.__get_element(line, namePosition, nameLength):
-                if self.__isSameTrnc(record, newRecord):
+        for line in old_list:
+            element = self.__get_element(line, name_position, name_length)
+            record_content = record_format.content(element)
+            record = CompareRecord(line, record_content)
+            if new_element == self.__get_element(line, name_position, name_length):
+                if self.__is_same_trnc(record, new_record):
                     return True
 
         return False
@@ -289,162 +292,160 @@ class CompareDiff:
     def __compare_file_list(self, record_format, line, name_position, name_length, old_list, new_list):
         # type : (RecordFormat, int, int, list, list) -> Noe
         index = 0
-        newindex = 0
-        lineLength = 3 + name_position + name_length
+        new_index = 0
+        line_length = 3 + name_position + name_length
 
-        iscanx = False
         for line in old_list:
-            if newindex >= len(new_list):
+            if new_index >= len(new_list):
                 break
 
-            if len(line) > lineLength:
+            if len(line) > line_length:
                 element = self.__get_element(line, name_position, name_length)
-                newLine = new_list[newindex]
+                new_line = new_list[new_index]
 
-                newelement = self.__get_element(newLine, name_position, name_length)
-                recordContent = record_format.content(element)
-                record = CompareRecord(line, recordContent)
+                new_element = self.__get_element(new_line, name_position, name_length)
+                record_content = record_format.content(element)
+                record = CompareRecord(line, record_content)
 
-                newrecordContent = record_format.content(newelement)
-                newRecord = CompareRecord(newLine, newrecordContent)
+                new_record_content = record_format.content(new_element)
+                new_record = CompareRecord(new_line, new_record_content)
 
-                isbreak = False
-                while (not (element == newelement and self.__isSameTrnc(record, newRecord)) or
-                       self.__isCanx(recordContent, record, newrecordContent, newRecord)):
+                is_break = False
+                while (not (element == new_element and self.__is_same_trnc(record, new_record))
+                       or self.__is_canx(record_content, record, new_record_content, new_record)):
 
-                    # Find a correspondence in the old record, indicating that the current old record is out, record and skip the old record
-                    if (self.__findSameRecord(record_format, newelement, newRecord, old_list, name_position,
-                                              name_length) and
-                            not self.__isCanx(recordContent, record, newrecordContent, newRecord)):
+                    if (self.__file_same_record(record_format, new_element, new_record, old_list, name_position,
+                                                name_length)
+                            and not self.__is_canx(record_content, record, new_record_content, new_record)):
                         index += 1
                         error = dict()
 
-                        error["Agent code"] = self.__agentCode
-                        error["Document number"] = self.__docNum
+                        error["Agent code"] = self.__agent_code
+                        error["Document number"] = self.__doc_num
                         error["Record number"] = element
                         error["Field Name"] = ""
                         error["ISIS value"] = line
                         error["ISIS2 value"] = "N"
                         error["Comments"] = ""
-                        error["ISIS File Name"] = self.__oldFileName
+                        error["ISIS File Name"] = self.__old_file_name
                         if "BAR65" == element or "BAR64" == element:
                             error["Comments"] = "D_HOT_3"
 
-                        self.__loglist.append(error)
-                        isbreak = True
+                        self.__logs.append(error)
+                        is_break = True
                         break
 
                     else:
-
-                        if newrecordContent.check_canx:
-                            iscanx = "CANX" == record.element(newrecordContent.element_name)
+                        is_canx = False
+                        if new_record_content.check_canx:
+                            is_canx = "CANX" == record.element(new_record_content.element_name)
 
                         comment = ""
-                        if iscanx or "CANX" == newRecord.element(newrecordContent.element_name):
-                            comment = newrecordContent.comment
+                        if is_canx or "CANX" == new_record.element(new_record_content.element_name):
+                            comment = new_record_content.comment
                             if comment is None:
                                 comment = ""
 
                         error = dict()
-                        error["Agent code"] = self.__agentCode
-                        error["Document number"] = self.__docNum
-                        error["Record number"] = newelement
+                        error["Agent code"] = self.__agent_code
+                        error["Document number"] = self.__doc_num
+                        error["Record number"] = new_element
                         error["Field Name"] = ""
                         error["ISIS value"] = "N"
-                        error["ISIS2 value"] = newLine
+                        error["ISIS2 value"] = new_line
                         error["Comments"] = comment
-                        error["ISIS File Name"] = self.__oldFileName
+                        error["ISIS File Name"] = self.__old_file_name
 
-                        self.__loglist.append(error)
-                        newindex += 1
-                        if newindex >= len(new_list):
-                            isbreak = True
+                        self.__logs.append(error)
+                        new_index += 1
+                        if new_index >= len(new_list):
+                            is_break = True
                             break
 
-                        newLine = new_list[newindex]
-                        newelement = self.__get_element(newLine, name_position, name_length)
-                        newrecordContent = record_format.content(newelement)
-                        newRecord = CompareRecord(newLine, newrecordContent)
+                        new_line = new_list[new_index]
+                        new_element = self.__get_element(new_line, name_position, name_length)
+                        new_record_content = record_format.content(new_element)
+                        new_record = CompareRecord(new_line, new_record_content)
 
-                if isbreak:
+                if is_break:
                     continue
 
-                newrecordContent = record_format.content(newelement)
-                newRecord = CompareRecord(newLine, newrecordContent)
+                new_record_content = record_format.content(new_element)
+                new_record = CompareRecord(new_line, new_record_content)
                 record.parse_record()
-                newRecord.parse_record()
-                self.__compareElement(index, record, newRecord)
+                new_record.parse_record()
+                self.__compare_element(index, record, new_record)
 
             index += 1
-            newindex += 1
+            new_index += 1
 
         if index != len(old_list):
             for i in range(index, len(old_list)):
                 comment = self.__get_cstring(record_format, old_list[i], name_position, name_length)
 
                 error = dict()
-                error["Agent code"] = self.__agentCode
-                error["Document number"] = self.__docNum
+                error["Agent code"] = self.__agent_code
+                error["Document number"] = self.__doc_num
                 error["Record number"] = ""
                 error["Field Name"] = ""
                 error["ISIS value"] = "Y"
                 error["ISIS2 value"] = "N"
                 error["Comments"] = comment
-                error["ISIS File Name"] = self.__oldFileName
-                self.__loglist.append(error)
+                error["ISIS File Name"] = self.__old_file_name
+                self.__logs.append(error)
 
-        if newindex != len(new_list):
-            for i in range(newindex, len(new_list)):
+        if new_index != len(new_list):
+            for i in range(new_index, len(new_list)):
                 comment = self.__get_cstring(record_format, new_list[i], name_position, name_length)
 
                 error = dict()
-                error["Agent code"] = self.__agentCode
-                error["Document number"] = self.__docNum
+                error["Agent code"] = self.__agent_code
+                error["Document number"] = self.__doc_num
                 error["Record number"] = ""
                 error["Field Name"] = ""
                 error["ISIS value"] = "N"
                 error["ISIS2 value"] = "Y"
                 error["Comments"] = comment
-                error["ISIS File Name"] = self.__oldFileName
-                self.__loglist.append(error)
+                error["ISIS File Name"] = self.__old_file_name
+                self.__logs.append(error)
 
-    def __compareElement(self, index, record, newRecord):
+    def __compare_element(self, index, record, new_record):
         # type : (int, CompareRecord,CompareRecord) -> None
 
         map = record.element_map
-        newMap = newRecord.element_map
+        new_map = new_record.element_map
 
         for key in map:
             value = map.get(key)
-            newValue = newMap.get(key)
+            new_value = new_map.get(key)
             if record.airline(key):
-                self.__airlineCode = "air:{}".format(value)
+                self.__airline_code = "air:{}".format(value)
 
-            if value is not None and newValue is not None:
-                if value != newValue:
+            if value is not None and new_value is not None:
+                if value != new_value:
                     comment = record.comment(key)
-                    elementOldValue = record.old_value(key)
-                    elementNewValue = record.new_value(key)
+                    element_old_value = record.old_value(key)
+                    element_new_value = record.new_value(key)
 
-                    if elementNewValue is not None and newValue != elementNewValue:
+                    if element_new_value is not None and new_value != element_new_value:
                         comment = ""
 
-                    if elementOldValue is not None and value != elementOldValue:
+                    if element_old_value is not None and value != element_old_value:
                         comment = ""
 
                     if record.check_length(key) and value.strip() != "":
                         comment = ""
 
-                    if "CARF" == key and newValue.find(value.strip()) > -1:
+                    if "CARF" == key and new_value.find(value.strip()) > -1:
                         comment = "D_HOT_69"
 
                     error = dict()
-                    error["Agent code"] = self.__agentCode
-                    error["Document number"] = self.__docNum
+                    error["Agent code"] = self.__agent_code
+                    error["Document number"] = self.__doc_num
                     error["Record number"] = record.getContent().getName()
                     error["Field Name"] = key
                     error["ISIS value"] = value
-                    error["ISIS2 value"] = newValue
+                    error["ISIS2 value"] = new_value
                     error["Comments"] = comment
-                    error["ISIS File Name"] = self.__oldFileName
-                    self.__loglist.append(error)
+                    error["ISIS File Name"] = self.__old_file_name
+                    self.__logs.append(error)

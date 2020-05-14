@@ -229,7 +229,9 @@ def query_more_files(more_files, index, new):
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
             """.format(more_files, index))
-            entity_type = SplitFileInfoNew
+            rows = cursor.fetchall()
+            for row in rows:
+                res.append(SplitFileInfoNew(row[0], row[1], row[2], row[3]))
         else:
             cursor.execute("""
             select path,rootpath,fullname,oldname from FC_SPLIT_FILE_INF_NEW 
@@ -237,11 +239,10 @@ def query_more_files(more_files, index, new):
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
             """.format(more_files, index))
-            entity_type = SplitFileInfoOld
+            rows = cursor.fetchall()
+            for row in rows:
+                res.append(SplitFileInfoOld(row[0], row[1], row[2], row[3]))
 
-        rows = cursor.fetchall()
-        for row in rows:
-            res.append(entity_type(row[0], row[1], row[2], row[3]))
         cursor.close()
 
     except sqlite3.Error as error:
