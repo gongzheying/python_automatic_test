@@ -3,7 +3,7 @@ from csv import DictWriter
 
 from file_compare import filedao
 from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew
-from file_compare.filestructure import CompareRoot, CompareRecord, RecordContent
+from file_compare.filestructure import CompareRoot, CompareRecord, RecordContent, RecordFormat
 
 CONF_PATH = "config.txt"
 OLD_DEFAULT_PATH = "./oldPath"
@@ -50,18 +50,8 @@ class CompareDiff:
         self.__doc_num = ""
         self.__airline_code = ""
         self.__logs = list()
-
-    @property
-    def old_split_dir(self):
-        return self.__old_split_dir
-
-    @property
-    def new_split_dir(self):
-        return self.__new_split_dir
-
-    @property
-    def result_path(self):
-        return self.__result_path
+        self.__root = CompareRoot.get_hot_root()
+        self.__record_format = self.__root.format("default")
 
     def process_compare(self, diff_writer):
         # type: (DictWriter) -> None
@@ -69,8 +59,8 @@ class CompareDiff:
         filedao.clear_data()
 
         # Get all files
-        old_map = self.__refresh_file_list(self.old_split_dir, False)
-        new_map = self.__refresh_file_list(self.new_split_dir, True)
+        old_map = self.__refresh_file_list(self.__old_split_dir, False)
+        new_map = self.__refresh_file_list(self.__new_split_dir, True)
 
         # Put the comparison in the same table
         filedao.into_same_record()
@@ -180,23 +170,23 @@ class CompareDiff:
     def __get_comment(self, file_name):
         # type: (str) -> str
         result = ""
-        root = CompareRoot.get_hot_root()
-        record_format = root.format("default")
-        name_position = root.content_name_position
-        name_length = root.length
+
+        name_position = self.__root.content_name_position
+        name_length = self.__root.length
         with open(file_name, "rt") as file:
             for line in file:
                 line = line.strip()
                 if len(line) < 3:
                     continue
-                comment = self.__get_cstring(record_format, name_position, name_length)
+                comment = self.__get_cstring(self.__record_format, name_position, name_length)
                 if "" != comment:
                     result = comment
                     break
         return result
 
     def __get_cstring(self, record_format, line, name_position, name_length):
-        # type : (RecordFormat, str,int,int) -> str
+        # type: (RecordFormat, str,int,int) -> str
+
         element = self.__get_element(line, name_position, name_length)
         if name_position > 0:
             element += line[name_position - 1: name_position + name_length - 1]
@@ -237,9 +227,7 @@ class CompareDiff:
         old_list = [line.strip() for line in open(old_file) if len(line.strip()) > 0]
         new_list = [line.strip() for line in open(new_file) if len(line.strip()) > 0]
 
-        root = CompareRoot.get_hot_root()
-
-        self.__compare_file_list(root.format("default"), root.content_name_position, root.length, old_list, new_list)
+        self.__compare_file_list(old_list, new_list)
 
     def __process_log(self, filename, diff_writer):
         # type : (str,DictWriter) -> None
@@ -279,6 +267,7 @@ class CompareDiff:
 
     def __file_same_record(self, record_format, new_element, new_record, old_list, name_position, name_length):
         # type : (RecordFormat, str,CompareRecord,list, int, int) -> bool
+
         for line in old_list:
             element = self.__get_element(line, name_position, name_length)
             record_content = record_format.content(element)
@@ -289,8 +278,11 @@ class CompareDiff:
 
         return False
 
-    def __compare_file_list(self, record_format, line, name_position, name_length, old_list, new_list):
-        # type : (RecordFormat, int, int, list, list) -> Noe
+    def __compare_file_list(self, old_list, new_list):
+        # type : (list, list) -> Noe
+
+        name_position = self.__root.content_name_position
+        name_length = self.__root.length
         index = 0
         new_index = 0
         line_length = 3 + name_position + name_length
@@ -304,18 +296,18 @@ class CompareDiff:
                 new_line = new_list[new_index]
 
                 new_element = self.__get_element(new_line, name_position, name_length)
-                record_content = record_format.content(element)
+                record_content = self.__record_format.content(element)
                 record = CompareRecord(line, record_content)
 
-                new_record_content = record_format.content(new_element)
+                new_record_content = self.__record_format.content(new_element)
                 new_record = CompareRecord(new_line, new_record_content)
 
                 is_break = False
                 while (not (element == new_element and self.__is_same_trnc(record, new_record))
                        or self.__is_canx(record_content, record, new_record_content, new_record)):
 
-                    if (self.__file_same_record(record_format, new_element, new_record, old_list, name_position,
-                                                name_length)
+                    if (self.__file_same_record(self.__record_format, new_element, new_record, old_list,
+                                                name_position, name_length)
                             and not self.__is_canx(record_content, record, new_record_content, new_record)):
                         index += 1
                         error = dict()
@@ -364,13 +356,13 @@ class CompareDiff:
 
                         new_line = new_list[new_index]
                         new_element = self.__get_element(new_line, name_position, name_length)
-                        new_record_content = record_format.content(new_element)
+                        new_record_content = self.__record_format.content(new_element)
                         new_record = CompareRecord(new_line, new_record_content)
 
                 if is_break:
                     continue
 
-                new_record_content = record_format.content(new_element)
+                new_record_content = self.__record_format.content(new_element)
                 new_record = CompareRecord(new_line, new_record_content)
                 record.parse_record()
                 new_record.parse_record()
@@ -381,7 +373,7 @@ class CompareDiff:
 
         if index != len(old_list):
             for i in range(index, len(old_list)):
-                comment = self.__get_cstring(record_format, old_list[i], name_position, name_length)
+                comment = self.__get_cstring(self.__record_format, old_list[i], name_position, name_length)
 
                 error = dict()
                 error["Agent code"] = self.__agent_code
@@ -396,7 +388,7 @@ class CompareDiff:
 
         if new_index != len(new_list):
             for i in range(new_index, len(new_list)):
-                comment = self.__get_cstring(record_format, new_list[i], name_position, name_length)
+                comment = self.__get_cstring(self.__record_format, new_list[i], name_position, name_length)
 
                 error = dict()
                 error["Agent code"] = self.__agent_code

@@ -2,7 +2,8 @@ import os
 from csv import DictWriter
 
 from file_compare import filedao
-from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew
+from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew, SplitFileInfoVO
+from file_compare.filestructure import CompareRoot, CompareRecord, RecordContent, RecordFormat
 
 CONF_PATH = "config.txt"
 OLD_DEFAULT_PATH = "./oldPath"
@@ -54,17 +55,16 @@ class CompareCSIDiff:
         self.__new_split_dir = new_split_dir
         self.__result_path = result_path
 
-    @property
-    def old_split_dir(self):
-        return self.__old_split_dir
+        self.__curFileName = ""
+        self.__oldFileName = ""
+        self.__newFileName = ""
+        self.__pca = ""
+        self.__airlineCode = ""
+        self.__csiDate = ""
+        self.__docNum = ""
 
-    @property
-    def new_split_dir(self):
-        return self.__new_split_dir
-
-    @property
-    def result_path(self):
-        return self.__result_path
+        self.__logs = list()
+        self.__root = CompareRoot.get_hot_root()
 
     def process_compare(self, diff_writer):
         # type: (DictWriter) -> None
@@ -72,8 +72,8 @@ class CompareCSIDiff:
         filedao.clear_data()
 
         # Get all files
-        self.__refresh_file_list(self.old_split_dir, False)
-        self.__refresh_file_list(self.new_split_dir, True)
+        self.__refresh_file_list(self.__old_split_dir, False)
+        self.__refresh_file_list(self.__new_split_dir, True)
 
         # Put the comparison in the same table
         filedao.into_same_record()
@@ -81,6 +81,86 @@ class CompareCSIDiff:
         # Processing missing files
         self.__compare_more_file(diff_writer, False)
         self.__compare_more_file(diff_writer, True)
+
+        page = 0
+        index = 0
+        count = filedao.count_same_record()
+        while index <= count:
+            index = page * 500
+            same_list = filedao.query_same_record(index)
+            for vo in same_list:
+                self.__compare_file(vo)
+
+            page += 1
+
+
+
+
+    def  __compare_file(self,vo):
+        # type : (SplitFileInfoVO) -> None
+
+        filename = vo.full_name
+        newFile = vo.new_full_name
+
+        # If the current file and the previous file directory are different, replace
+        # the airline code, output logs, empty the log list and airline code.
+
+        if "" != self.__curFileName:
+            curpath = os.path.split(self.__curFileName)[0]
+            path = os.path.split(filename)[0]
+            if curpath != path:
+                for error in self.__logs:
+                    error["Airline"] = self.__airlineCode
+                    error["CSI Date"] = self.__csiDate
+                    error["PCA"] = self.__pca
+
+                self.__airlineCode = ""
+                self.__docNum = ""
+                self.__logs = list()
+
+        self.__curFileName = filename
+
+
+        file = filename[len(self.__old_split_dir) + 1:]
+
+		csiFormat = file[0, file.find(os.path.sep)]
+
+
+
+		if (!curOldName.equals(vo.getNewFileName())) {
+			@SuppressWarnings("static-access")
+			Appender appender = Logger.getRootLogger().getAppender("RootConsoleAppender");
+			if (appender instanceof FileAppender) {
+
+				FileAppender fappender = (FileAppender) appender;
+
+				String logname = vo.getNewFileName();
+
+				fappender.setFile(resultPath.substring(0, resultPath.lastIndexOf(File.separator) + 1) + csiFormat
+						+ File.separator + logname + ".csv");
+
+				fappender.activateOptions();
+				LogCategory.BUSINESS.error(
+						"ISIS file name,ISIS2 file Name,CSI Date,PCA,Airline,Format,Error type,Error description,CSI Record Name,Document number,ISIS VALUE,ISIS2 VALUE,Filed");
+
+			}
+		}
+
+		curOldName = vo.getNewFileName();
+		self.__oldFileName = vo.getFilename();
+		self.__newFileName = vo.getNewFileName();
+
+		getPca(newFileName);
+
+		// read file
+
+		List<String> oldList = FileUtils.readFile(filename);
+		List<String> newList = FileUtils.readFile(newFile);
+
+		compareFileList(recordFromat, oldList, newList, true);
+
+	}
+
 
     def __compare_more_file(self, diff_writer, new):
         # type: (DictWriter,bool)->None
@@ -95,82 +175,83 @@ class CompareCSIDiff:
             for file_info in file_infos:
                 csi_file_full_name = file_info.full_name
 
-                #  cap: split_root_dir/origin_csi_file/TBT{merchant_no}/{merchant_no}Detail.txt
-                # dish: split_root_dir/origin_csi_file/CFH-{count_cfh}/CIH-{cco_air}/CBH-{cco_agent}/detail.txt
+                # /cap/origin_csi_file/TBT{merchant_no}/{merchant_no}Detail.txt
+                # /dish/origin_csi_file/CFH-{count_cfh}/CIH-{cco_air}/CBH-{cco_agent}/detail.txt
+                key = file_info.path
 
-                is_detail = os.path.split(csi_file_full_name)[1].lower().endswith("detail.txt")
+                path_name_array = key.split(os.path.sep)
+                csi_file_format_name = path_name_array[1]
+
+                is_detail = path_name_array[len(path_name_array) - 1].lower().endswith("detail.txt")
                 if is_detail:
                     line_list = [line.strip() for line in open(csi_file_full_name, "rt")]
-                    self.__more_file(line_list, diff_writer, new)
+                    self.__more_file(self.__root.format(csi_file_format_name), line_list, diff_writer, new)
 
             p += 1
 
-    def __more_file(self, lines, diff_writer, new):
-        # type: (list,DictWriter,bool)->None
-        pass
+    def __more_file(self, record_format, lines, diff_writer, new):
+        # type: (RecordFormat, list,DictWriter,bool)->None
 
-    #
-    # private static void moreFile(List<String> lineList, String ny) {
-    # 	int index = 0;
-    # 	while (index < lineList.size()) {
-    # 		String docNum = "";
-    # 		List<String> groupList = getGroup(recordFromat, index, lineList);
-    # 		for (String line : groupList) {
-    # 			String doc = getDocNum(line, recordFromat);
-    # 			if (doc != null) {
-    # 				docNum = ":" + doc;
-    # 			}
-    # 		}
-    # 		String error = oldFileName + "," + newFileName + ",csiDate," + pca
-    # 				+ ",,csiFormat,D_CSI_pymt,lack of payment," + "" + "," + docNum + "," + ny + ",";
-    # 		loglist.add(error);
-    # 		index += groupList.size();
-    # 	}
-    #
-    # }
+        doc_num = ""
+        group_list = self.__get_group(record_format, lines)
+        for line in group_list:
+            doc = self.__get_doc_num(line, record_format)
+            if "" != doc:
+                doc_num = ":{}".format(doc)
 
-    #
-    # private static String getDocNum(String line, RecordFromat recordFromat) {
-    # 	String element = getElement(line);
-    # 	RecordContent recordContent = recordFromat.getElement(element);
-    # 	CompareRecord record = new CompareRecord(line, recordContent);
-    # 	record.parseRecord();
-    # 	Map<String, String> map = record.getElementMap();
-    # 	for (String key : map.keySet()) {
-    # 		String value = map.get(key);
-    # 		if (record.isDocnum(key)) {
-    # 			return value;
-    # 		}
-    # 	}
-    # 	return null;
-    # }
-    #
-    # private static String getElement(String line) {
-    # 	String element = line.substring(0, 3);
-    # 	return element;
-    # }
-    #
-    # private static List<String> getGroup(RecordFromat recordFromat, int index, List<String> list) {
-    # 	List<String> group = new ArrayList<String>();
-    # 	while (index < list.size()) {
-    # 		String line = list.get(index);
-    # 		String element = getElement(line);
-    # 		RecordContent recordContent = recordFromat.getElement(element);
-    # 		CompareRecord record = new CompareRecord(line, recordContent);
-    #
-    # 		if (record.isGroupEnd() && group.size() >= 1) {
-    # 			break;
-    # 		}
-    #
-    # 		if (record.isGroup()) {
-    # 			group.add(line);
-    # 		}
-    #
-    # 		index++;
-    # 	}
-    #
-    # 	return group;
-    # }
+        error = dict()
+        # "ISIS file name,ISIS2 file Name,CSI Date,PCA,Airline,Format,Error type,Error description,CSI Record Name,Document number,ISIS VALUE,ISIS2 VALUE,Filed"
+        error["ISIS file name"] = self.__oldFileName
+        error["ISIS2 file Name"] = self.__newFileName
+        error["CSI Date"] = "csiDate"
+        error["PCA"] = self.__pca
+        error["Airline"] = ""
+        error["Format"] = record_format.name
+        error["Error type"] = "D_CSI_pymt"
+        error["Error description"] = "lack of payment"
+        error["CSI Record Name"] = ""
+        error["Document number"] = doc_num
+        error["ISIS VALUE"] = "N" if new else "Y"
+        error["ISIS2 VALUE"] = "Y" if new else "N"
+        error["Filed"] = ""
+
+        self.__logs.append(error)
+
+    def __get_doc_num(self, line, record_format):
+        # type: (str, RecordFormat) -> str
+
+        element = self.__get_element(line)
+        record_content = record_format.content(element)
+        record = CompareRecord(line, record_content)
+        record.parse_record()
+        map = record.element_map
+        for key in map:
+            value = map.get(key)
+            if record.doc_num(key):
+                return value
+
+        return ""
+
+    def __get_element(self, line):
+        # type : (str) -> str
+        return line[0:3]
+
+    def __get_group(self, record_format, lines):
+        # type: (RecordFormat, list) -> list
+        group = list()
+        for line in lines:
+
+            element = self.__get_element(line)
+            record_content = record_format.content(element)
+            record = CompareRecord(line, record_content)
+
+            if record.group_end and len(group) >= 1:
+                break
+
+            if record.group:
+                group.append(line)
+
+        return group
 
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->None
@@ -180,7 +261,7 @@ class CompareCSIDiff:
             for name in files:
                 full_name = os.path.join(root, name)
 
-                # split_root_dir/origin_csi_file/filename.txt
+                # split_root_dir/(cap|dish)/origin_csi_file/filename.txt
 
                 if "filename.txt" == name:
                     lines = [line.strip() for line in open(full_name, "rt")]
