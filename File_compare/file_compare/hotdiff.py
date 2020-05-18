@@ -10,9 +10,15 @@ OLD_DEFAULT_PATH = "./oldPath"
 NEW_DEFAULT_PATH = "./newPath"
 RESULT_DEFAULT_PATH = "./result"
 
-COLUMNS = (
-    "Airline code", "Agent code", "Document number", "Record number",
-    "Field Name", "ISIS value", "ISIS2 value", "Comments", "ISIS File Name")
+COLUMNS = ("ISIS File Name",
+           "Airline code",
+           "Agent code",
+           "Document number",
+           "Record number",
+           "Field Name",
+           "ISIS value",
+           "ISIS2 value",
+           "Comments")
 
 
 def run(conf_path=CONF_PATH):
@@ -26,7 +32,7 @@ def run(conf_path=CONF_PATH):
                 old_split_dir = line[line.index("=") + 1:].strip()
             if line.startswith("newPath="):
                 new_split_dir = line[line.index("=") + 1:].strip()
-            if line.startsWith("resultPath="):
+            if line.startswith("resultPath="):
                 result_path = line[line.index('=') + 1:].strip()
 
     with open(os.path.join(result_path, "hot_diff.csv"), "w+t") as diff_file:
@@ -77,7 +83,7 @@ class CompareDiff:
             index = page * 500
             same_list = filedao.query_same_record(index)
             for vo in same_list:
-                self.__compare_file(vo.full_name, vo.new_full_name, diff_writer)
+                self.__compare_file(vo, diff_writer)
 
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->dict
@@ -89,7 +95,8 @@ class CompareDiff:
                 full_name = os.path.join(root, name)
 
                 path = full_name[len(split_root_dir):]
-                file_name = path[1:path.index(os.path.sep, 2)]
+                file_names = path.split(os.path.sep)
+                file_name = file_names[1]
 
                 if new:
                     entities.append(SplitFileInfoNew(path, split_root_dir, full_name, file_name))
@@ -125,7 +132,6 @@ class CompareDiff:
         more_files = ",".join(file_names)
 
         # Less tickets
-        i = 0
         p = 0
         size = 500
         while size >= 500:
@@ -134,36 +140,26 @@ class CompareDiff:
             size = len(file_infos)
             for file_info in file_infos:
                 hot_file_full_name = file_info.full_name
-                agent_code = ""
+                hot_file_name = file_info.original_file
 
                 # /origin_hot_file/agent_code/ticket_number/***
                 key = file_info.path
 
-                path_name_array = key.split(os.path.sep)
-                hot_file_name = path_name_array[1]
-                if len(path_name_array) > 3:
-                    agent_code = path_name_array[2]
-                doc_num = path_name_array[len(path_name_array) - 1].replace(".txt", "")
+                file_names = key.split(os.path.sep)
+                agent_code = ""
+                if len(file_names) > 3:
+                    agent_code = file_names[2]
+                doc_num = file_names[len(file_names) - 1].replace(".txt", "")
                 comment = self.__get_comment(hot_file_full_name)
 
-                if new:
-                    diff_writer.writerow({
-                        "Agent code": agent_code,
-                        "Document number": doc_num,
-                        "ISIS value": "N",
-                        "ISIS2 value": "Y",
-                        "Comments": comment,
-                        "ISIS File Name": hot_file_name
-                    })
-                else:
-                    diff_writer.writerow({
-                        "Agent code": agent_code,
-                        "Document number": doc_num,
-                        "ISIS value": "Y",
-                        "ISIS2 value": "N",
-                        "Comments": comment,
-                        "ISIS File Name": hot_file_name
-                    })
+                diff_writer.writerow({
+                    "Agent code": agent_code,
+                    "Document number": doc_num,
+                    "ISIS value": "N" if new else "Y",
+                    "ISIS2 value": "Y" if new else "N",
+                    "Comments": comment,
+                    "ISIS File Name": hot_file_name
+                })
 
             p += 1
 
@@ -178,7 +174,7 @@ class CompareDiff:
                 line = line.strip()
                 if len(line) < 3:
                     continue
-                comment = self.__get_cstring(self.__record_format, name_position, name_length)
+                comment = self.__get_cstring(self.__record_format, line, name_position, name_length)
                 if "" != comment:
                     result = comment
                     break
@@ -205,20 +201,23 @@ class CompareDiff:
             element += line[name_position - 1: name_position + name_length - 1]
         return element
 
-    def __compare_file(self, old_file, new_file, diff_writer):
-        # type: (str,str,DictWriter) -> None
+    def __compare_file(self, vo, diff_writer):
+        # type: (SplitFileInfoVO,DictWriter) -> None
+
+        old_file = vo.full_name
+        new_file = vo.new_full_name
 
         self.__process_log(old_file, diff_writer)
 
         self.__cur_file_name = old_file
 
-        # agentCode,document number
-        file_names = old_file.split(os.path.sep)
+        # /origin_hot_file/agent_code/ticket_number/***
+        file_names = vo.path.split(os.path.sep)
 
         self.__old_file_name = file_names[1]
 
         self.__agent_code = ""
-        if len(file_names.length) > 3:
+        if len(file_names) > 3:
             self.__agent_code = file_names[2]
 
         self.__doc_num = file_names[len(file_names) - 1].replace(".txt", "")
@@ -310,18 +309,21 @@ class CompareDiff:
                                                 name_position, name_length)
                             and not self.__is_canx(record_content, record, new_record_content, new_record)):
                         index += 1
-                        error = dict()
 
-                        error["Agent code"] = self.__agent_code
-                        error["Document number"] = self.__doc_num
-                        error["Record number"] = element
-                        error["Field Name"] = ""
-                        error["ISIS value"] = line
-                        error["ISIS2 value"] = "N"
-                        error["Comments"] = ""
-                        error["ISIS File Name"] = self.__old_file_name
+                        comment = ""
                         if "BAR65" == element or "BAR64" == element:
-                            error["Comments"] = "D_HOT_3"
+                            comment = "D_HOT_3"
+
+                        error = {
+                            "Agent code": self.__agent_code,
+                            "Document number": self.__doc_num,
+                            "Record number": element,
+                            "Field Name": "",
+                            "ISIS value": line,
+                            "ISIS2 value": "N",
+                            "Comments": comment,
+                            "ISIS File Name": self.__old_file_name
+                        }
 
                         self.__logs.append(error)
                         is_break = True
@@ -338,15 +340,16 @@ class CompareDiff:
                             if comment is None:
                                 comment = ""
 
-                        error = dict()
-                        error["Agent code"] = self.__agent_code
-                        error["Document number"] = self.__doc_num
-                        error["Record number"] = new_element
-                        error["Field Name"] = ""
-                        error["ISIS value"] = "N"
-                        error["ISIS2 value"] = new_line
-                        error["Comments"] = comment
-                        error["ISIS File Name"] = self.__old_file_name
+                        error = {
+                            "Agent code": self.__agent_code,
+                            "Document number": self.__doc_num,
+                            "Record number": new_element,
+                            "Field Name": "",
+                            "ISIS value": "N",
+                            "ISIS2 value": new_line,
+                            "Comments": comment,
+                            "ISIS File Name": self.__old_file_name
+                        }
 
                         self.__logs.append(error)
                         new_index += 1
@@ -366,7 +369,7 @@ class CompareDiff:
                 new_record = CompareRecord(new_line, new_record_content)
                 record.parse_record()
                 new_record.parse_record()
-                self.__compare_element(index, record, new_record)
+                self.__compare_element(record, new_record)
 
             index += 1
             new_index += 1
@@ -375,40 +378,42 @@ class CompareDiff:
             for i in range(index, len(old_list)):
                 comment = self.__get_cstring(self.__record_format, old_list[i], name_position, name_length)
 
-                error = dict()
-                error["Agent code"] = self.__agent_code
-                error["Document number"] = self.__doc_num
-                error["Record number"] = ""
-                error["Field Name"] = ""
-                error["ISIS value"] = "Y"
-                error["ISIS2 value"] = "N"
-                error["Comments"] = comment
-                error["ISIS File Name"] = self.__old_file_name
+                error = {
+                    "Agent code": self.__agent_code,
+                    "Document number": self.__doc_num,
+                    "Record number": "",
+                    "Field Name": "",
+                    "ISIS value": "Y",
+                    "ISIS2 value": "N",
+                    "Comments": comment,
+                    "ISIS File Name": self.__old_file_name
+                }
                 self.__logs.append(error)
 
         if new_index != len(new_list):
             for i in range(new_index, len(new_list)):
                 comment = self.__get_cstring(self.__record_format, new_list[i], name_position, name_length)
 
-                error = dict()
-                error["Agent code"] = self.__agent_code
-                error["Document number"] = self.__doc_num
-                error["Record number"] = ""
-                error["Field Name"] = ""
-                error["ISIS value"] = "N"
-                error["ISIS2 value"] = "Y"
-                error["Comments"] = comment
-                error["ISIS File Name"] = self.__old_file_name
+                error = {
+                    "Agent code": self.__agent_code,
+                    "Document number": self.__doc_num,
+                    "Record number": "",
+                    "Field Name": "",
+                    "ISIS value": "N",
+                    "ISIS2 value": "Y",
+                    "Comments": comment,
+                    "ISIS File Name": self.__old_file_name
+                }
                 self.__logs.append(error)
 
-    def __compare_element(self, index, record, new_record):
+    def __compare_element(self, record, new_record):
         # type : (int, CompareRecord,CompareRecord) -> None
 
-        map = record.element_map
+        old_map = record.element_map
         new_map = new_record.element_map
 
-        for key in map:
-            value = map.get(key)
+        for key in old_map:
+            value = old_map.get(key)
             new_value = new_map.get(key)
             if record.airline(key):
                 self.__airline_code = "air:{}".format(value)
@@ -431,13 +436,14 @@ class CompareDiff:
                     if "CARF" == key and new_value.find(value.strip()) > -1:
                         comment = "D_HOT_69"
 
-                    error = dict()
-                    error["Agent code"] = self.__agent_code
-                    error["Document number"] = self.__doc_num
-                    error["Record number"] = record.getContent().getName()
-                    error["Field Name"] = key
-                    error["ISIS value"] = value
-                    error["ISIS2 value"] = new_value
-                    error["Comments"] = comment
-                    error["ISIS File Name"] = self.__old_file_name
+                    error = {
+                        "Agent code": self.__agent_code,
+                        "Document number": self.__doc_num,
+                        "Record number": record.getContent().getName(),
+                        "Field Name": key,
+                        "ISIS value": value,
+                        "ISIS2 value": new_value,
+                        "Comments": comment,
+                        "ISIS File Name": self.__old_file_name
+                    }
                     self.__logs.append(error)
