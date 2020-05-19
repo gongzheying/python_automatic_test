@@ -3,14 +3,52 @@ import shutil
 from datetime import datetime
 from os import path
 
+CONF_PATH = "config.txt"
+OLD_DEFAULT_PATH = "./oldPath"
+NEW_DEFAULT_PATH = "./newPath"
+
+
+def run(conf_path=CONF_PATH):
+    # type: (str) -> bool
+
+    old_src_dir = None
+    new_src_dir = None
+    old_split_dir = OLD_DEFAULT_PATH
+    new_split_dir = NEW_DEFAULT_PATH
+
+    with open(conf_path, "rt") as conf_file:
+        for line in conf_file:
+            if line.startswith("old="):
+                old_src_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("new="):
+                new_src_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("oldPath="):
+                old_split_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("newPath="):
+                new_split_dir = line[line.index("=") + 1:].strip()
+
+    print "ISIS file path:{}".format(old_src_dir)
+
+    if not path.exists(old_src_dir):
+        print "Invalid old path!"
+        return False
+
+    print "[{}] Begin to cut old files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    CsiSplit.cut_dir(old_src_dir, old_split_dir)
+    print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+
+    print "ISIS2 file path:{}".format(new_src_dir)
+
+    if not path.exists(new_src_dir):
+        print "Invalid new path!"
+        return False
+
+    print "[{}] Begin to cut new files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    CsiSplit.cut_dir(new_src_dir, new_split_dir)
+    print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    return True
 
 class CsiSplit:
-    CONF_PATH = "config.txt"
-    OLD_DEFAULT_PATH = "./oldPath"
-    NEW_DEFAULT_PATH = "./newPath"
-
-    def __init__(self):
-        pass
 
     @staticmethod
     def is_cat(s):
@@ -67,23 +105,25 @@ class CsiSplit:
         # type: (str) -> bool
         return len(s) >= 3 and "CBR COR COT COA".find(s[0:3]) != -1
 
-    def cut_dir(self, csi_file, base_path):
+    @staticmethod
+    def cut_dir(csi_file, base_path):
         # type: (str, str) -> None
 
         if path.isdir(csi_file):
             for child_name in os.listdir(csi_file):
-                self.cut_dir(path.join(csi_file, child_name), base_path)
+                CsiSplit.cut_dir(path.join(csi_file, child_name), base_path)
         else:
             csi_file_header = ""
             with open(csi_file, "rt") as csi_file_handle:
                 csi_file_header = csi_file_handle.readline()
 
-            if self.is_tfh(csi_file_header):
-                self.cut_cap_file(csi_file, path.join(base_path, "cap"))
-            elif self.is_cfh(csi_file_header):
-                self.cut_file(csi_file, path.join(base_path, "dish"))
+            if CsiSplit.is_tfh(csi_file_header):
+                CsiSplit.cut_cap_file(csi_file, path.join(base_path, "cap"))
+            elif CsiSplit.is_cfh(csi_file_header):
+                CsiSplit.cut_file(csi_file, path.join(base_path, "dish"))
 
-    def cut_cap_file(self, csi_file, base_path):
+    @staticmethod
+    def cut_cap_file(csi_file, base_path):
         # type: (str,str) -> None
 
         csi_file_name = path.basename(csi_file)
@@ -109,10 +149,10 @@ class CsiSplit:
             csf_file_section_data = []
 
             for line in csi_file_all:
-                if self.is_detail(line):
+                if CsiSplit.is_detail(line):
                     csf_file_section_data.append(line)
 
-                elif self.is_tbt(line):
+                elif CsiSplit.is_tbt(line):
                     csi_file_section.close()
 
                     merchant_no = line[12:27].strip()
@@ -126,7 +166,7 @@ class CsiSplit:
                     csf_file_section_data = []
                     csi_file_section = open(path.join(csi_file_tbt_root, "TBT{}.txt".format(merchant_no)), "w+t")
 
-                elif self.is_tfs(line):
+                elif CsiSplit.is_tfs(line):
                     csi_file_section.close()
 
                     csi_file_section = open(path.join(csi_file_root_path, "TFS.txt"), "w+t")
@@ -134,7 +174,7 @@ class CsiSplit:
                     csi_file_section.write("\n")
                     csi_file_section.close()
 
-                if not self.is_tfs(line):
+                if not CsiSplit.is_tfs(line):
                     csi_file_section.write(line)
                     csi_file_section.write("\n")
                     csi_file_section.flush()
@@ -142,7 +182,8 @@ class CsiSplit:
         csi_file_section.close()
         print "cut file :{} is complete!".format(csi_file_name)
 
-    def cut_file(self, csi_file, base_path):
+    @staticmethod
+    def cut_file(csi_file, base_path):
         # type: (str,str) -> None
 
         csi_file_name = path.basename(csi_file)
@@ -176,7 +217,7 @@ class CsiSplit:
         with open(csi_file, "rt") as csi_file_all:
             for line in csi_file_all:
 
-                if self.is_cfh(line):
+                if CsiSplit.is_cfh(line):
                     csi_file_section.close()
 
                     csi_file_cfh_root = path.join(csi_file_root_path, "CFH-{}".format(count_cfh))
@@ -186,7 +227,7 @@ class CsiSplit:
                     count_cfh += 1
                     count_cih = 1
 
-                elif self.is_cih(line):
+                elif CsiSplit.is_cih(line):
                     csi_file_section.close()
 
                     cco_air = line[11:16]
@@ -197,7 +238,7 @@ class CsiSplit:
                     count_cih += 1
                     count_cbh = 1
 
-                elif self.is_cbh(line):
+                elif CsiSplit.is_cbh(line):
                     csi_file_section.close()
 
                     cco_agent = line[54:62]
@@ -208,7 +249,7 @@ class CsiSplit:
 
                     count_cbh += 1
 
-                elif self.is_detail(line):
+                elif CsiSplit.is_detail(line):
                     if not is_detail:
                         csi_file_section.close()
 
@@ -219,22 +260,22 @@ class CsiSplit:
 
                     is_detail = True
 
-                elif self.is_cbt(line):
+                elif CsiSplit.is_cbt(line):
                     csi_file_section.close()
 
                     csi_file_section = open(path.join(csi_file_cbh_root, "cbt.txt"), "w+t")
 
-                elif self.is_cat(line):
+                elif CsiSplit.is_cat(line):
                     csi_file_section.close()
 
                     csi_file_section = open(path.join(csi_file_cbh_root, "cat.txt"), "w+t")
 
-                elif self.is_cit(line):
+                elif CsiSplit.is_cit(line):
                     csi_file_section.close()
 
                     csi_file_section = open(path.join(csi_file_cih_root, "cit.txt"), "w+t")
 
-                elif self.is_cft(line):
+                elif CsiSplit.is_cft(line):
                     csi_file_section.close()
 
                     csi_file_section = open(path.join(csi_file_cfh_root, "cft.txt"), "w+t")
@@ -246,41 +287,3 @@ class CsiSplit:
 
         csi_file_section.close()
         print "cut file :{} is complete!".format(csi_file_name)
-
-    def run(self, conf_path=CONF_PATH):
-
-        old_src_dir = None
-        new_src_dir = None
-        old_split_dir = self.OLD_DEFAULT_PATH
-        new_split_dir = self.NEW_DEFAULT_PATH
-
-        with open(conf_path, "rt") as conf_file:
-            for line in conf_file:
-                if line.startswith("old="):
-                    old_src_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("new="):
-                    new_src_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("oldPath="):
-                    old_split_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("newPath="):
-                    new_split_dir = line[line.index("=") + 1:].strip()
-
-        print "ISIS file path:{}".format(old_src_dir)
-
-        if not path.exists(old_src_dir):
-            print "Invalid old path!"
-            return
-
-        print "[{}] Begin to cut old files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-        self.cut_dir(old_src_dir, old_split_dir)
-        print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-
-        print "ISIS2 file path:{}".format(new_src_dir)
-
-        if not path.exists(new_src_dir):
-            print "Invalid new path!"
-            return
-
-        print "[{}] Begin to cut new files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-        self.cut_dir(new_src_dir, new_split_dir)
-        print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))

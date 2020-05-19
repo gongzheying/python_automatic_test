@@ -3,14 +3,52 @@ import shutil
 from datetime import datetime
 from os import path
 
+CONF_PATH = "config.txt"
+OLD_DEFAULT_PATH = "./oldPath"
+NEW_DEFAULT_PATH = "./newPath"
+
+
+def run(conf_path=CONF_PATH):
+    # type: (str) -> bool
+
+    old_src_dir = None
+    new_src_dir = None
+    old_split_dir = OLD_DEFAULT_PATH
+    new_split_dir = NEW_DEFAULT_PATH
+
+    with open(conf_path, "rt") as conf_file:
+        for line in conf_file:
+            if line.startswith("old="):
+                old_src_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("new="):
+                new_src_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("oldPath="):
+                old_split_dir = line[line.index("=") + 1:].strip()
+            if line.startswith("newPath="):
+                new_split_dir = line[line.index("=") + 1:].strip()
+
+    print "ISIS file path:{}".format(old_src_dir)
+
+    if not path.exists(old_src_dir):
+        print "Invalid old path!"
+        return False
+
+    print "[{}] Begin to cut old files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    HotSplit.cut_dir(old_src_dir, old_split_dir)
+    print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+
+    print "ISIS2 file path:{}".format(new_src_dir)
+
+    if not path.exists(new_src_dir):
+        print "Invalid new path!"
+        return False
+
+    print "[{}] Begin to cut new files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    HotSplit.cut_dir(new_src_dir, new_split_dir)
+    print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
+    return True
 
 class HotSplit:
-    CONF_PATH = "config.txt"
-    OLD_DEFAULT_PATH = "./oldPath"
-    NEW_DEFAULT_PATH = "./newPath"
-
-    def __init__(self):
-        pass
 
     @staticmethod
     def is01(s):
@@ -62,16 +100,18 @@ class HotSplit:
         # type: (str) -> bool
         return s.startswith("A")
 
-    def cut_dir(self, hot_file, base_path):
+    @staticmethod
+    def cut_dir(hot_file, base_path):
         # type: (str,str) -> None
 
         if path.isdir(hot_file):
             for child_name in os.listdir(hot_file):
-                self.cut_dir(path.join(hot_file, child_name), base_path)
+                HotSplit.cut_dir(path.join(hot_file, child_name), base_path)
         else:
-            self.cut_file(hot_file, base_path)
+            HotSplit.cut_file(hot_file, base_path)
 
-    def cut_file(self, hot_file, base_path):
+    @staticmethod
+    def cut_file(hot_file, base_path):
         # type: (str,str) -> None
 
         hot_file_name = path.basename(hot_file)
@@ -98,11 +138,11 @@ class HotSplit:
         with open(hot_file, "rt") as hot_file_all:
             for line in hot_file_all:
 
-                if self.is_a(line):
+                if HotSplit.is_a(line):
                     hot_file_section.close()
                     break
 
-                if self.is01(line) and last_record != -1:
+                if HotSplit.is01(line) and last_record != -1:
                     hot_file_section.close()
 
                     hot_file_section = open(path.join(hot_file_root_path, "BFH01-{}.txt".format(count01)), "w+t")
@@ -110,7 +150,7 @@ class HotSplit:
                     doc_num = None
                     last_record = 1
 
-                elif self.is02(line):
+                elif HotSplit.is02(line):
                     hot_file_section.close()
 
                     hot_file_section = open(path.join(hot_file_root_path, "BCH02-{}.txt".format(count02)), "w+t")
@@ -118,7 +158,7 @@ class HotSplit:
                     doc_num = None
                     last_record = 2
 
-                elif self.is03(line):
+                elif HotSplit.is03(line):
                     hot_file_section.close()
 
                     hot_file_agent_path = path.join(hot_file_root_path, line[13:21].strip())
@@ -129,7 +169,7 @@ class HotSplit:
                     doc_num = None
                     last_record = 3
 
-                elif self.is06(line):
+                elif HotSplit.is06(line):
                     hot_file_section.close()
                     hot_file_agent_name = hot_file_section.name
                     if "tmp" == path.basename(hot_file_agent_name):
@@ -142,10 +182,10 @@ class HotSplit:
                     doc_num = None
                     last_record = 6
 
-                elif self.is24(line):
+                elif HotSplit.is24(line):
                     doc_num = line[28:38].strip()
 
-                elif self.is93(line):
+                elif HotSplit.is93(line):
 
                     if last_record != 93:
                         hot_file_section.close()
@@ -161,14 +201,14 @@ class HotSplit:
 
                     last_record = 93
 
-                elif self.is94(line):
+                elif HotSplit.is94(line):
                     if last_record != 94:
                         hot_file_section.close()
                         hot_file_section = open(path.join(hot_file_agent_path, "BOT94.txt"), "w+t")
                         doc_num = None
                     last_record = 94
 
-                elif self.is95(line):
+                elif HotSplit.is95(line):
                     if last_record != 95:
                         hot_file_section.close()
                         hot_file_section = open(path.join(hot_file_root_path, "BCT95-{}.txt".format(count95)), "w+t")
@@ -176,7 +216,7 @@ class HotSplit:
                         doc_num = None
                     last_record = 95
 
-                elif self.is99(line):
+                elif HotSplit.is99(line):
 
                     hot_file_section.close()
                     hot_file_section = open(path.join(hot_file_root_path, "BFT99-{}.txt".format(count99)), "w+t")
@@ -189,41 +229,3 @@ class HotSplit:
                 hot_file_section.flush()
         hot_file_section.close()
         print "cut file :{} is complete!".format(hot_file_name)
-
-    def run(self, conf_path=CONF_PATH):
-
-        old_src_dir = None
-        new_src_dir = None
-        old_split_dir = self.OLD_DEFAULT_PATH
-        new_split_dir = self.NEW_DEFAULT_PATH
-
-        with open(conf_path, "rt") as conf_file:
-            for line in conf_file:
-                if line.startswith("old="):
-                    old_src_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("new="):
-                    new_src_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("oldPath="):
-                    old_split_dir = line[line.index("=") + 1:].strip()
-                if line.startswith("newPath="):
-                    new_split_dir = line[line.index("=") + 1:].strip()
-
-        print "ISIS file path:{}".format(old_src_dir)
-
-        if not path.exists(old_src_dir):
-            print "Invalid old path!"
-            return
-
-        print "[{}] Begin to cut old files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-        self.cut_dir(old_src_dir, old_split_dir)
-        print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-
-        print "ISIS2 file path:{}".format(new_src_dir)
-
-        if not path.exists(new_src_dir):
-            print "Invalid new path!"
-            return
-
-        print "[{}] Begin to cut new files.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
-        self.cut_dir(new_src_dir, new_split_dir)
-        print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))

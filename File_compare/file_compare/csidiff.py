@@ -26,6 +26,8 @@ COLUMNS = ("ISIS File Name",
 
 
 def run(conf_path=CONF_PATH):
+    # type: (str) -> bool
+
     old_split_dir = OLD_DEFAULT_PATH
     new_split_dir = NEW_DEFAULT_PATH
     result_path = RESULT_DEFAULT_PATH
@@ -36,15 +38,15 @@ def run(conf_path=CONF_PATH):
                 old_split_dir = line[line.index("=") + 1:].strip()
             if line.startswith("newPath="):
                 new_split_dir = line[line.index("=") + 1:].strip()
-            if line.startsWith("resultPath="):
+            if line.startswith("resultPath="):
                 result_path = line[line.index('=') + 1:].strip()
 
     with open(os.path.join(result_path, "csi_diff.csv"), "w+t") as diff_file:
         diff_writer = DictWriter(diff_file, COLUMNS)
-
         diff_writer.writeheader()
-
         CompareCSIDiff(old_split_dir, new_split_dir, result_path).process_compare(diff_writer)
+
+    return True
 
 
 class CompareCSIDiff:
@@ -112,41 +114,41 @@ class CompareCSIDiff:
         self.__csiFormat = file_names[1]
         self.__oldFileName = file_names[2]
 
-        self.__getFields(self.__oldFileName, self.__csiFormat)
+        self.__get_fields(self.__oldFileName, self.__csiFormat)
 
         # read file
         old_list = [line.strip() for line in open(old_file) if len(line.strip()) > 0]
         new_list = [line.strip() for line in open(new_file) if len(line.strip()) > 0]
 
-        self.__compareFileList(self.__root.format(self.__csiFormat), old_list, new_list, True, diff_writer)
+        self.__compare_file_list(self.__root.format(self.__csiFormat), old_list, new_list, True, diff_writer)
 
-    def __compareFileList(self, recordFormat, oldList, newList, checkGroup, diff_writer):
+    def __compare_file_list(self, record_format, old_list, new_list, check_group, diff_writer):
         # type: (RecordFormat,list,list,bool,DictWriter) -> None
         index = 0
-        newindex = 0
-        while index < len(oldList) and newindex < len(newList):
-            line = oldList[index]
-            newLine = newList[newindex]
+        new_index = 0
+        while index < len(old_list) and new_index < len(new_list):
+            line = old_list[index]
+            new_line = new_list[new_index]
 
             if len(line) > 3:
                 element = self.__get_element(line)
-                newelement = self.__get_element(newLine)
+                new_element = self.__get_element(new_line)
 
-                recordContent = recordFormat.content(element)
-                record = CompareRecord(line, recordContent)
+                record_content = record_format.content(element)
+                record = CompareRecord(line, record_content)
 
-                newrecordContent = recordFormat.content(newelement)
-                newRecord = CompareRecord(newLine, newrecordContent)
+                new_record_content = record_format.content(new_element)
+                new_record = CompareRecord(new_line, new_record_content)
 
-                isbreak = False
-                while element != newelement:
+                is_break = False
+                while element != new_element:
 
                     # Find a correspondence in the old record, indicating that the current old
                     # record is out, record and skip the old record
-                    if self.__findSameRecord(newelement, oldList):
+                    if self.__find_same_record(new_element, old_list):
                         index += 1
-                        comment = recordContent.comment
-                        commentdesc = recordContent.comment_desc
+                        comment = record_content.comment
+                        comment_desc = record_content.comment_desc
 
                         diff_writer.writerow({
                             "ISIS File Name": self.__oldFileName,
@@ -155,19 +157,19 @@ class CompareCSIDiff:
                             "Airline": "",
                             "Format": self.__csiFormat,
                             "Error type": comment,
-                            "Error description": commentdesc,
+                            "Error description": comment_desc,
                             "CSI Record Name": line[0:11],
                             "Document number": "",
                             "ISIS VALUE": "",
                             "ISIS2 VALUE": "",
                             "Filed": ""
                         })
-                        isbreak = True
+                        is_break = True
                         break
                     else:  # Otherwise the new record is out of the record and skips the new record
 
-                        comment = newrecordContent.comment
-                        commentdesc = newrecordContent.comment_desc
+                        comment = new_record_content.comment
+                        comment_desc = new_record_content.comment_desc
 
                         diff_writer.writerow({
                             "ISIS File Name": self.__oldFileName,
@@ -176,75 +178,75 @@ class CompareCSIDiff:
                             "Airline": "",
                             "Format": self.__csiFormat,
                             "Error type": comment,
-                            "Error description": commentdesc,
-                            "CSI Record Name": newLine[0:11],
+                            "Error description": comment_desc,
+                            "CSI Record Name": new_line[0:11],
                             "Document number": "",
                             "ISIS VALUE": "",
                             "ISIS2 VALUE": "",
                             "Filed": ""
                         })
 
-                        newindex += 1
-                        if newindex >= len(newList):
-                            isbreak = True
+                        new_index += 1
+                        if new_index >= len(new_list):
+                            is_break = True
                             break
-                        newLine = newList[newindex]
-                        newelement = self.__get_element(newLine)
-                        newrecordContent = recordFormat.content(newelement)
-                        newRecord = CompareRecord(newLine, newrecordContent)
+                        new_line = new_list[new_index]
+                        new_element = self.__get_element(new_line)
+                        new_record_content = record_format.content(new_element)
+                        new_record = CompareRecord(new_line, new_record_content)
 
-                if isbreak:
+                if is_break:
                     continue
 
-                if checkGroup:
+                if check_group:
                     if record.group():
-                        groupList = self.__getGroup(recordFormat, index, oldList)
-                        newGroupList = self.__getGroup(recordFormat, newindex, newList)
-                        more = self.__isSeamGroup(recordFormat, groupList, newGroupList, diff_writer)
+                        group_list = self.__get_group(record_format, index, old_list)
+                        new_group_list = self.__get_group(record_format, new_index, new_list)
+                        more = self.__is_same_group(record_format, group_list, new_group_list, diff_writer)
                         if "" == more:
-                            self.__compareFileList(recordFormat, groupList, newGroupList, False, diff_writer)
-                            index += len(groupList)
-                            newindex += len(newGroupList)
+                            self.__compare_file_list(record_format, group_list, new_group_list, False, diff_writer)
+                            index += len(group_list)
+                            new_index += len(new_group_list)
                         elif "old" == more:
-                            index += len(groupList)
+                            index += len(group_list)
                         else:
-                            newindex += len(newGroupList)
+                            new_index += len(new_group_list)
                         continue
 
-                newrecordContent = recordFormat.content(newelement)
-                newRecord = CompareRecord(newLine, newrecordContent)
-                self.__compareElement(record, newRecord)
+                new_record_content = record_format.content(new_element)
+                new_record = CompareRecord(new_line, new_record_content)
+                self.__compare_element(record, new_record)
 
             index += 1
-            newindex += 1
+            new_index += 1
 
         # The same line after comparison to see if there is no record than the record
 
-        self.__processOverplusLine(recordFormat, index, oldList, False)
+        self.__process_overplus_line(record_format, index, old_list, False)
 
-        self.__processOverplusLine(recordFormat, newindex, newList, True)
+        self.__process_overplus_line(record_format, new_index, new_list, True)
 
         # if end replace docNum
-        if not checkGroup:
-            self.__replaceLog()
+        if not check_group:
+            self.__replace_log()
 
-    def __findSameRecord(self, newelement, oldList):
+    def __find_same_record(self, new_element, old_list):
         # type: (str,list) -> bool
 
-        for line in oldList:
-            if newelement == self.__get_element(line):
+        for line in old_list:
+            if new_element == self.__get_element(line):
                 return True
         return False
 
-    def __getGroup(self, recordFormat, index, lines):
+    def __get_group(self, record_format, index, lines):
         # type : (RecordFormat,int,list) -> list
 
         group = list()
         while index < len(lines):
             line = lines[index]
             element = self.__get_element(line)
-            recordContent = recordFormat.content(element)
-            record = CompareRecord(line, recordContent)
+            record_content = record_format.content(element)
+            record = CompareRecord(line, record_content)
 
             if record.group_end and len(group) >= 1:
                 break
@@ -256,38 +258,38 @@ class CompareCSIDiff:
 
         return group
 
-    def __isSeamGroup(self, recordFormat, oldList, newList, diff_writer):
+    def __is_same_group(self, record_format, old_list, new_list, diff_writer):
         # type: (RecordFormat,list,list,DictWriter) -> str
 
         index = 0
-        newindex = 0
-        docNum = "0"
-        newDocNum = "0"
-        element = self.__get_element(oldList[0])
-        endElement = self.__get_element(oldList[len(oldList) - 1])
+        new_index = 0
+        doc_num = "0"
+        new_doc_num = "0"
+        element = self.__get_element(old_list[0])
+        end_element = self.__get_element(old_list[len(old_list) - 1])
 
-        while index < len(oldList) and newindex < len(newList):
-            line = oldList[index]
-            newLine = newList[newindex]
-            doc = self.__get_doc_num(line, recordFormat)
-            newDoc = self.__get_doc_num(newLine, recordFormat)
+        while index < len(old_list) and new_index < len(new_list):
+            line = old_list[index]
+            new_line = new_list[new_index]
+            doc = self.__get_doc_num(line, record_format)
+            new_doc = self.__get_doc_num(new_line, record_format)
             if "" != doc:
-                docNum = doc
+                doc_num = doc
 
-            if "" != newDoc:
-                newDocNum = newDoc;
+            if "" != new_doc:
+                new_doc_num = new_doc
 
             index += 1
-            newindex += 1
+            new_index += 1
 
-        seamGroup = docNum == newDocNum
-        if not seamGroup:
-            num = long(docNum.strip())
-            newNum = long(newDocNum.strip())
-            if num > newNum:
+        same_group = doc_num == new_doc_num
+        if not same_group:
+            num = long(doc_num.strip())
+            new_num = long(new_doc_num.strip())
+            if num > new_num:
                 comment = "D_CSI_pymt"
-                value = newList[0][0: 11]
-                safm = newList[0][157: 168]
+                value = new_list[0][0: 11]
+                safm = new_list[0][157: 168]
                 if "00000000000" == safm:
                     comment = "D_CSI_72"
 
@@ -299,8 +301,8 @@ class CompareCSIDiff:
                     "Format": self.__csiFormat,
                     "Error type": comment,
                     "Error description": "lack of payment",
-                    "CSI Record Name": "{}-{}".format(element, endElement),
-                    "Document number": ":{}".format(newNum),
+                    "CSI Record Name": "{}-{}".format(element, end_element),
+                    "Document number": ":{}".format(new_num),
                     "ISIS VALUE": "",
                     "ISIS2 VALUE": value,
                     "Filed": ""
@@ -308,7 +310,7 @@ class CompareCSIDiff:
 
                 return "new"
             else:
-                value = oldList[0][0: 11]
+                value = old_list[0][0: 11]
 
                 diff_writer.writerow({
                     "ISIS File Name": self.__oldFileName,
@@ -318,7 +320,7 @@ class CompareCSIDiff:
                     "Format": self.__csiFormat,
                     "Error type": "D_CSI_pymt",
                     "Error description": "lack of payment",
-                    "CSI Record Name": "{}-{}".format(element, endElement),
+                    "CSI Record Name": "{}-{}".format(element, end_element),
                     "Document number": ":{}".format(num),
                     "ISIS VALUE": value,
                     "ISIS2 VALUE": "",
@@ -329,31 +331,31 @@ class CompareCSIDiff:
 
         return ""
 
-    def __compareElement(self, record, newRecord):
+    def __compare_element(self, record, new_record):
         # type: (CompareRecord,CompareRecord) -> None
 
         record.parse_record()
-        newRecord.parse_record()
+        new_record.parse_record()
 
-        map = record.element_map
-        newMap = newRecord.element_map
+        old_map = record.element_map
+        new_map = new_record.element_map
 
-        docNumStr = "";
+        doc_num_str = ""
         if record.group:
-            docNumStr = "docNum"
+            doc_num_str = "docNum"
 
-        for key in map:
+        for key in old_map:
 
-            value = ":{}".format(map.get(key))
-            newValue = ":{}".format(newMap.get(key))
+            old_value = ":{}".format(old_map.get(key))
+            new_value = ":{}".format(new_map.get(key))
 
             if record.csi_date(key):
-                self.__csiDate = newValue
+                self.__csiDate = new_value
 
             if record.doc_num(key):
-                self.__docNum = ":{}".format(value)
+                self.__docNum = ":{}".format(old_value)
 
-            if value != newValue:
+            if old_value != new_value:
                 comment = record.comment(key)
                 desc = record.comment_desc(key)
 
@@ -366,59 +368,65 @@ class CompareCSIDiff:
                     "Error type": comment,
                     "Error description": desc,
                     "CSI Record Name": record.content.name,
-                    "Document number": docNumStr,
-                    "ISIS VALUE": value,
-                    "ISIS2 VALUE": newValue,
+                    "Document number": doc_num_str,
+                    "ISIS VALUE": old_value,
+                    "ISIS2 VALUE": new_value,
                     "Filed": key
                 }
 
                 self.__logs.append(error)
 
-    def __replaceLog(self):
+    def __replace_log(self):
+        # type: () -> None
         for log in self.__logs:
             if "docNum" == log.get("Document number"):
                 log["Document number"] = self.__docNum
         self.__docNum = ""
 
-    def __processOverplusLine(self, recordFromat, index, lineList, new):
+    def __more_file(self, record_format, line_list, new):
+        # type: (RecordFormat, list, bool) -> None
+        index = 0
+        while index < len(line_list):
+            doc_num = ""
+            group_list = self.__get_group(record_format, index, line_list)
+            for line in group_list:
+                doc = self.__get_doc_num(line, record_format)
+                if "" != doc:
+                    doc_num = ":{}".format(doc)
+            error = {
+                "ISIS File Name": self.__oldFileName,
+                "CSI Date": self.__csiDate,
+                "PCA": self.__pca,
+                "Airline": "",
+                "Format": self.__csiFormat,
+                "Error type": "D_CSI_pymt",
+                "Error description": "lack of payment",
+                "CSI Record Name": "",
+                "Document number": doc_num,
+                "ISIS VALUE": "N" if new else "Y",
+                "ISIS2 VALUE": "Y" if new else "N",
+                "Filed": ""
+            }
+
+            self.__logs.append(error)
+
+    def __process_overplus_line(self, record_format, index, line_list, new):
         # type: (RecordFormat, int,list,bool) -> None
-        if index != len(lineList):
-            line = lineList[index]
+        if index != len(line_list):
+            line = line_list[index]
             element = self.__get_element(line)
-            recordContent = recordFromat.content(element)
+            record_content = record_format.content(element)
 
             # Same ticket or not a row of tickets, new tickets are processed by more votes and fewer votes
-            if recordContent.group_end:
+            if record_content.group_end:
 
-                doc_num = ""
-                group_list = self.__get_group(recordFromat, lineList[index:])
-                for line in group_list:
-                    doc = self.__get_doc_num(line, recordFromat)
-                    if "" != doc:
-                        doc_num = ":{}".format(doc)
-
-                error = {
-                    "ISIS File Name": self.__oldFileName,
-                    "CSI Date": self.__csiDate,
-                    "PCA": self.__pca,
-                    "Airline": "",
-                    "Format": self.__csiFormat,
-                    "Error type": "D_CSI_pymt",
-                    "Error description": "lack of payment",
-                    "CSI Record Name": "",
-                    "Document number": doc_num,
-                    "ISIS VALUE": "N" if new else "Y",
-                    "ISIS2 VALUE": "Y" if new else "N",
-                    "Filed": ""
-                }
-
-                self.__logs.append(error)
+                self.__more_file(record_format, line_list[index:], new)
 
             else:
-                for i in range(index, len(lineList)):
-                    line = lineList[i]
+                for i in range(index, len(line_list)):
+                    line = line_list[i]
                     element = self.__get_element(line)
-                    recordContent = recordFromat.content(element)
+                    record_content = record_format.content(element)
 
                     error = {
                         "ISIS File Name": self.__oldFileName,
@@ -426,8 +434,8 @@ class CompareCSIDiff:
                         "PCA": self.__pca,
                         "Airline": "",
                         "Format": self.__csiFormat,
-                        "Error type": recordContent.comment,
-                        "Error description": recordContent.comment_desc,
+                        "Error type": record_content.comment,
+                        "Error description": record_content.comment_desc,
                         "CSI Record Name": line,
                         "Document number": "",
                         "ISIS VALUE": "N" if new else "Y",
@@ -444,9 +452,9 @@ class CompareCSIDiff:
         # the airline code, output logs, empty the log list and airline code.
 
         if "" != self.__curFileName:
-            curpath = os.path.split(self.__curFileName)[0]
+            cur_path = os.path.split(self.__curFileName)[0]
             path = os.path.split(filename)[0]
-            if curpath != path:
+            if cur_path != path:
                 for log in self.__logs:
                     log["Airline"] = self.__airlineCode
                     log["CSI Date"] = self.__csiDate
@@ -459,24 +467,24 @@ class CompareCSIDiff:
                 self.__docNum = ""
                 self.__logs = list()
 
-    def __getFields(self, oldname, csiFormat):
+    def __get_fields(self, old_name, csi_format):
         # type: (str,str) -> None
-        if "cap" == csiFormat:
-            self.__pca = "AMEX";
+        if "cap" == csi_format:
+            self.__pca = "AMEX"
         else:
-            if oldname.startswith("c"):  # Complete CSI
+            if old_name.startswith("c"):  # Complete CSI
                 self.__pca = ""
-                self.__airlineCode = oldname[len(oldname) - 3:]
+                self.__airlineCode = old_name[len(old_name) - 3:]
             else:
-                if len(oldname) == 7 or len(oldname) == 8 or len(oldname) == 13:
-                    self.__pca = oldname[0: 2]
+                if len(old_name) == 7 or len(old_name) == 8 or len(old_name) == 13:
+                    self.__pca = old_name[0: 2]
 
-                elif len(oldname) == 12:
-                    end = oldname[10:]
+                elif len(old_name) == 12:
+                    end = old_name[10:]
                     if re.search(".*([1-2]$)", end) is not None:
-                        self.__pca = oldname[4:8]
+                        self.__pca = old_name[4:8]
                     else:
-                        self.___pca = oldname[0:2]
+                        self.___pca = old_name[0:2]
 
     def __compare_more_file(self, file_map, ref_file_map, diff_writer, new):
         # type: (dict,dict,DictWriter,bool)->None
@@ -510,7 +518,6 @@ class CompareCSIDiff:
             size = len(file_infos)
             for file_info in file_infos:
                 csi_file_full_name = file_info.full_name
-                csi_file_name = file_info.original_file
 
                 # /cap/origin_csi_file/TBT{merchant_no}/{merchant_no}Detail.txt
                 # /dish/origin_csi_file/CFH-{count_cfh}/CIH-{cco_air}/CBH-{cco_agent}/detail.txt
@@ -522,29 +529,8 @@ class CompareCSIDiff:
                 is_detail = file_names[len(file_names) - 1].lower().endswith("detail.txt")
                 if is_detail:
                     lines = [line.strip() for line in open(csi_file_full_name, "rt")]
-
                     record_format = self.__root.format(csi_file_format_name)
-                    doc_num = ""
-                    group_list = self.__get_group(record_format, lines)
-                    for line in group_list:
-                        doc = self.__get_doc_num(line, record_format)
-                        if "" != doc:
-                            doc_num = ":{}".format(doc)
-
-                    diff_writer.writerow({
-                        "ISIS File Name": csi_file_name,
-                        "CSI Date": "",
-                        "PCA": "",
-                        "Airline": "",
-                        "Format": record_format.name,
-                        "Error type": "D_CSI_pymt",
-                        "Error description": "lack of payment",
-                        "CSI Record Name": "",
-                        "Document number": doc_num,
-                        "ISIS VALUE": "N" if new else "Y",
-                        "ISIS2 VALUE": "Y" if new else "N",
-                        "Filed": ""
-                    })
+                    self.__more_file(record_format, lines, new)
 
             p += 1
 
@@ -555,9 +541,9 @@ class CompareCSIDiff:
         record_content = record_format.content(element)
         record = CompareRecord(line, record_content)
         record.parse_record()
-        map = record.element_map
-        for key in map:
-            value = map.get(key)
+        element_map = record.element_map
+        for key in element_map:
+            value = element_map.get(key)
             if record.doc_num(key):
                 return value
 
@@ -566,23 +552,6 @@ class CompareCSIDiff:
     def __get_element(self, line):
         # type : (str) -> str
         return line[0:3]
-
-    def __get_group(self, record_format, lines):
-        # type: (RecordFormat, list) -> list
-        group = list()
-        for line in lines:
-
-            element = self.__get_element(line)
-            record_content = record_format.content(element)
-            record = CompareRecord(line, record_content)
-
-            if record.group_end and len(group) >= 1:
-                break
-
-            if record.group:
-                group.append(line)
-
-        return group
 
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->dict

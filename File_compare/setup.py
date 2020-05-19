@@ -34,7 +34,7 @@ setup(
 
     # Dependent packages (distributions)
     install_requires=[
-        "cx_Oracle",
+        "cx_Oracle", "lxml"
     ],
 
     classifiers=[

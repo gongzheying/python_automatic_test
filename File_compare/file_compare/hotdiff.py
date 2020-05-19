@@ -2,7 +2,7 @@ import os
 from csv import DictWriter
 
 from file_compare import filedao
-from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew
+from file_compare.filedao import SplitFileInfoOld, SplitFileInfoNew, SplitFileInfoVO
 from file_compare.filestructure import CompareRoot, CompareRecord, RecordContent, RecordFormat
 
 CONF_PATH = "config.txt"
@@ -22,6 +22,8 @@ COLUMNS = ("ISIS File Name",
 
 
 def run(conf_path=CONF_PATH):
+    # type: (str) -> bool
+
     old_split_dir = OLD_DEFAULT_PATH
     new_split_dir = NEW_DEFAULT_PATH
     result_path = RESULT_DEFAULT_PATH
@@ -37,11 +39,10 @@ def run(conf_path=CONF_PATH):
 
     with open(os.path.join(result_path, "hot_diff.csv"), "w+t") as diff_file:
         diff_writer = DictWriter(diff_file, COLUMNS)
-
         diff_writer.writeheader()
-
         CompareDiff(old_split_dir, new_split_dir, result_path).process_compare(diff_writer)
 
+    return True
 
 class CompareDiff:
 
@@ -169,8 +170,8 @@ class CompareDiff:
 
         name_position = self.__root.content_name_position
         name_length = self.__root.length
-        with open(file_name, "rt") as file:
-            for line in file:
+        with open(file_name, "rt") as hot_file:
+            for line in hot_file:
                 line = line.strip()
                 if len(line) < 3:
                     continue

@@ -6,10 +6,11 @@ import pkgutil
 import re
 import shutil
 import string
-from subprocess import PIPE, Popen
 
 import cx_Oracle
 from enum import Enum
+
+from file_compare import csidiff, csisplit, hotdiff, hotsplit
 
 
 class CompareType(Enum):
@@ -35,37 +36,27 @@ class Compare:
 
         cf = self.__get_conf()
 
-        self.__logger = logging.getLogger("compare.%s" % compare_type.name)
+        self.__type = compare_type.name
+        self.__logger = logging.getLogger("compare.{}".format(self.__type))
 
-        self.__conn_url = kwargs.get("conn_url",
-                                     "%s/%s@%s" % (cf.get("database", "user"),
-                                                   cf.get("database", "password"),
-                                                   cf.get("database", "tnsname")))
-
+        self.__conn_url = kwargs.get("connUrl", cf.get("database", "nbs_common_connstr"))
         self.__output_root = kwargs.get("outputRoot", cf.get("ibsp", "outbound_online_root"))
         self.__base_root = kwargs.get("baseRoot", cf.get("ibsp", "outbound_baseline_root"))
 
-        self.__split_jar = kwargs.get("splitJar", cf.get(compare_type.name, "split_jar"))
-        self.__diff_jar = kwargs.get("diffJar", cf.get(compare_type.name, "diff_jar"))
-
-        self.__result_root = "%s/.filecompare/%s/result_path" % (os.environ.get("HOME", "."), compare_type.name)
-
-        self.__new_file_path = kwargs.get("newFilePath",
-                                          "%s/.filecompare/%s/new" % (
-                                              os.environ.get("HOME", "."), compare_type.name))
-        self.__old_file_path = kwargs.get("oldFilePath",
-                                          "%s/.filecompare/%s/old" % (
-                                              os.environ.get("HOME", "."), compare_type.name))
-        self.__new_app_path = kwargs.get("newAppPath",
-                                         "%s/.filecompare/%s/newPath" % (
-                                             os.environ.get("HOME", "."), compare_type.name))
-        self.__old_app_path = kwargs.get("oldAppPath",
-                                         "%s/.filecompare/%s/oldPath" % (
-                                             os.environ.get("HOME", "."), compare_type.name))
+        home_dir = os.environ.get("HOME", ".")
+        self.__result_root = "{}/.filecompare/{}/result_path".format(home_dir, self.__type)
+        self.__new_file_path = "{}/.filecompare/{}/new".format(home_dir, self.__type)
+        self.__old_file_path = "{}/.filecompare/{}/old".format(home_dir, self.__type)
+        self.__new_app_path = "{}/.filecompare/{}/newPath".format(home_dir, self.__type)
+        self.__old_app_path = "{}/.filecompare/{}/oldPath".format(home_dir, self.__type)
 
     @property
     def logger(self):
         return self.__logger
+
+    @property
+    def type(self):
+        return self.__type
 
     @property
     def conn_url(self):
@@ -78,14 +69,6 @@ class Compare:
     @property
     def base_root(self):
         return self.__base_root
-
-    @property
-    def split_jar(self):
-        return self.__split_jar
-
-    @property
-    def diff_jar(self):
-        return self.__diff_jar
 
     @property
     def result_root(self):
@@ -107,14 +90,14 @@ class Compare:
     def old_app_path(self):
         return self.__old_app_path
 
-    def get_output_sql(self, bsp_code, create_date):
+    def __get_output_sql(self, bsp_code, create_date):
         # type: (str,str)->str
         return None
 
     def __get_output_files(self, bsp_code, create_date):
         # type: (str,str)-> list
 
-        sql = self.get_output_sql(bsp_code, create_date)
+        sql = self.__get_output_sql(bsp_code, create_date)
         data = []
         if sql is not None:
             try:
@@ -175,8 +158,8 @@ class Compare:
         else:
             self.logger.debug("No such file %s", src)
 
-    def __write_config(self, result_path, bsp):
-        # type: (str,str) -> None
+    def __write_config(self, result_path):
+        # type: (str) -> None
 
         """
         rewrite compare config 
@@ -191,7 +174,6 @@ class Compare:
             fh.write("newPath=%s%s" % (self.new_app_path, os.linesep))
             fh.write("oldPath=%s%s" % (self.old_app_path, os.linesep))
             fh.write("resultPath=%s%s" % (result_path, os.linesep))
-            fh.write("bsp=%s%s" % (bsp, os.linesep))
 
             self.logger.debug("Success: modify config file %s", fn)
 
@@ -207,31 +189,6 @@ class Compare:
         """
         call compare.sh under scriptDir, if success return True
         """
-        java_cmd = Popen(['java', '-version'],
-                         shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = java_cmd.communicate()
-        if java_cmd.returncode != 0:
-            self.logger.error("java: command not found")
-            return False
-
-        java_cmd = Popen(['java', '-jar', '%s' % self.split_jar, '%s/config.txt' % self.result_root],
-                         shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = java_cmd.communicate()
-        if java_cmd.returncode != 0:
-            self.logger.error("'%s' run failed: %s", self.split_jar, stderr.decode("utf-8"))
-            return False
-        else:
-            self.logger.debug("'%s' run completed: %s", self.split_jar, stdout.decode("utf-8"))
-
-        java_cmd = Popen(['java', '-jar', '%s' % self.diff_jar, '%s/config.txt' % self.result_root],
-                         shell=True, stdout=PIPE, stderr=PIPE)
-        stdout, stderr = java_cmd.communicate()
-        if java_cmd.returncode != 0:
-            self.logger.error("'%s' run failed: %s", self.diff_jar, stderr.decode("utf-8"))
-            return False
-        else:
-            self.logger.debug("'%s' run completed: %s", self.split_jar, stdout.decode("utf-8"))
-
         return True
 
     def run(self, bsp, date):
@@ -241,7 +198,7 @@ class Compare:
         run file compare tool, and return result path
         """
         self.logger.info("Start file comparision")
-        result_path = "%s/%s%s" % (self.result_root, bsp, date)
+        result_path = "{}/{}_{}".format(self.result_root, bsp, date)
 
         data_dirs = (self.new_file_path, self.old_file_path, self.new_app_path, self.old_app_path, result_path)
         self.__clean_data_dirs(data_dirs)
@@ -254,7 +211,7 @@ class Compare:
                 self.__copy_outputs(path_new, self.new_file_path)
                 self.__copy_outputs(path_old, self.old_file_path)
 
-        self.__write_config(result_path, bsp)
+        self.__write_config(result_path)
 
         if self.__run_compare():
             self.logger.info("File comparision is completed and the result is stored in %s", result_path)
@@ -269,7 +226,7 @@ class CsiCompare(Compare):
 
         Compare.__init__(CompareType.CSI, **kwargs)
 
-    def get_output_sql(self, bsp_code, create_date):
+    def __get_output_sql(self, bsp_code, create_date):
         # type: (str,str) -> str
 
         sql_text = pkgutil.get_data(__package__, "resources/get_output_of_csi.sql").decode(encoding="utf-8")
@@ -279,6 +236,10 @@ class CsiCompare(Compare):
         sql = sql_template.substitute(params)
         return sql
 
+    def __run_compare(self):
+        conf = "{}/config.txt".format(self.result_root)
+        return csisplit.run(conf) and csidiff.run(conf)
+
 
 class HotCompare(Compare):
 
@@ -287,7 +248,7 @@ class HotCompare(Compare):
 
         Compare.__init__(CompareType.HOT, **kwargs)
 
-    def get_output_sql(self, bsp_code, create_date):
+    def __get_output_sql(self, bsp_code, create_date):
         # type: (str,str) -> str
 
         sql_text = pkgutil.get_data(__package__, "resources/get_output_of_hot.sql").decode(encoding="utf-8")
@@ -296,3 +257,7 @@ class HotCompare(Compare):
         params = dict(bsp=bsp_code, date=create_date)
         sql = sql_template.substitute(params)
         return sql
+
+    def __run_compare(self):
+        conf = "{}/config.txt".format(self.result_root)
+        return hotsplit.run(conf) and hotdiff.run(conf)
