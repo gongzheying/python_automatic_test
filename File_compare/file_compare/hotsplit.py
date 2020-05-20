@@ -48,7 +48,7 @@ def run(conf_path=CONF_PATH):
     print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
     return True
 
-class HotSplit:
+class HotSplit(object):
 
     @staticmethod
     def is01(s):

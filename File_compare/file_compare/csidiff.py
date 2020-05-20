@@ -49,7 +49,7 @@ def run(conf_path=CONF_PATH):
     return True
 
 
-class CompareCSIDiff:
+class CompareCSIDiff(object):
 
     def __init__(self, old_split_dir, new_split_dir, result_path):
         # type: (str,str,str) -> CompareCSIDiff
@@ -556,7 +556,7 @@ class CompareCSIDiff:
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->dict
         entities = list()
-        files = dict()
+        split_files = dict()
         for root, dirs, files in os.walk(split_root_dir):
             for name in files:
                 full_name = os.path.join(root, name)
@@ -571,8 +571,8 @@ class CompareCSIDiff:
                     entities.append(SplitFileInfoNew(path, split_root_dir, full_name, file_name))
                 else:
                     entities.append(SplitFileInfoOld(path, split_root_dir, full_name, file_name))
-                files[file_name] = path
+                split_files[file_name] = path
 
         if len(entities) > 0:
             filedao.add(entities, new)
-        return files
+        return split_files

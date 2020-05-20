@@ -48,7 +48,7 @@ def run(conf_path=CONF_PATH):
     print "[{}] Complete.".format(datetime.now().strftime("%b %d %Y %H:%M:%S"))
     return True
 
-class CsiSplit:
+class CsiSplit(object):
 
     @staticmethod
     def is_cat(s):

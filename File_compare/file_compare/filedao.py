@@ -3,7 +3,7 @@ import sqlite3
 DATABASE_NAME = "ibsps_compare.db"
 
 
-class SplitFileInfo:
+class SplitFileInfo(object):
     __path = None
     __root_path = None
     __full_name = None
@@ -60,13 +60,13 @@ class SplitFileInfo:
 class SplitFileInfoNew(SplitFileInfo):
     def __init__(self, path, root_path, full_name, original_file):
         # type: (str,str,str,str) -> SplitFileInfoNew
-        SplitFileInfo.__init__(self, path, root_path, full_name, original_file)
+        super(SplitFileInfoNew, self).__init__(path, root_path, full_name, original_file)
 
 
 class SplitFileInfoOld(SplitFileInfo):
     def __init__(self, path, root_path, full_name, original_file):
         # type: (str,str,str,str) -> SplitFileInfoOld
-        SplitFileInfo.__init__(self, path, root_path, full_name, original_file)
+        super(SplitFileInfoOld, self).__init__(path, root_path, full_name, original_file)
 
 
 class SplitFileInfoVO(SplitFileInfo):
@@ -75,7 +75,7 @@ class SplitFileInfoVO(SplitFileInfo):
 
     def __init__(self, path, new_root_path, new_full_name, root_path, full_name, old_name):
         # type: (str,str,str,str,str,str) -> SplitFileInfoVO
-        SplitFileInfo.__init__(self, path, root_path, full_name, old_name)
+        super(SplitFileInfoVO,self).__init__(path, root_path, full_name, old_name)
         self.__new_root_path = new_root_path
         self.__new_full_name = new_full_name
 
@@ -139,7 +139,7 @@ def clear_data():
         drop table if exists FC_SPLIT_FILE_INF_NEW;
         drop table if exists FC_SPLIT_FILE_INF_OLD;
 
-        create table FC_SPLIT_FILE_INF_VO((path TEXT PRIMARY KEY,newrootpath TEXT,newfullname TEXT,rootpath TEXT,fullname TEXT,filename TEXT);
+        create table FC_SPLIT_FILE_INF_VO(path TEXT PRIMARY KEY,newrootpath TEXT,newfullname TEXT,rootpath TEXT,fullname TEXT,filename TEXT);
         create table FC_SPLIT_FILE_INF_NEW(path TEXT PRIMARY KEY,rootpath TEXT,fullname TEXT,filename TEXT);
         create table FC_SPLIT_FILE_INF_OLD(path TEXT PRIMARY KEY,rootpath TEXT,fullname TEXT,filename TEXT);
         """)

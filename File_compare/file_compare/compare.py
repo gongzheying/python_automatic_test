@@ -18,7 +18,7 @@ class CompareType(Enum):
     CSI = 2
 
 
-class Compare:
+class Compare(object):
 
     @staticmethod
     def __get_conf():
@@ -27,7 +27,7 @@ class Compare:
         if os.path.exists(default_conf):
             cf.read(default_conf)
         else:
-            default_conf_text = pkgutil.get_data(__package__, "compare.ini").decode(encoding="utf-8")
+            default_conf_text = pkgutil.get_data(__package__, "compare.ini")
             cf.readfp(io.BytesIO(default_conf_text))
         return cf
 
@@ -90,14 +90,14 @@ class Compare:
     def old_app_path(self):
         return self.__old_app_path
 
-    def __get_output_sql(self, bsp_code, create_date):
+    def get_output_sql(self, bsp_code, create_date):
         # type: (str,str)->str
         return None
 
     def __get_output_files(self, bsp_code, create_date):
         # type: (str,str)-> list
 
-        sql = self.__get_output_sql(bsp_code, create_date)
+        sql = self.get_output_sql(bsp_code, create_date)
         data = []
         if sql is not None:
             try:
@@ -183,7 +183,7 @@ class Compare:
             if fh is not None:
                 fh.close()
 
-    def __run_compare(self):
+    def run_compare(self):
         # type: () -> bool
 
         """
@@ -213,7 +213,7 @@ class Compare:
 
         self.__write_config(result_path)
 
-        if self.__run_compare():
+        if self.run_compare():
             self.logger.info("File comparision is completed and the result is stored in %s", result_path)
         else:
             self.logger.warning("File comparision is failed")
@@ -224,19 +224,19 @@ class CsiCompare(Compare):
     def __init__(self, **kwargs):
         # type: (dict) -> None
 
-        Compare.__init__(CompareType.CSI, **kwargs)
+        super(CsiCompare,self).__init__(CompareType.CSI, **kwargs)
 
-    def __get_output_sql(self, bsp_code, create_date):
+    def get_output_sql(self, bsp_code, create_date):
         # type: (str,str) -> str
 
-        sql_text = pkgutil.get_data(__package__, "resources/get_output_of_csi.sql").decode(encoding="utf-8")
+        sql_text = pkgutil.get_data(__package__, "resources/get_output_of_csi.sql")
         sql_template = string.Template(sql_text)
 
         params = dict(bsp=bsp_code, date=create_date)
         sql = sql_template.substitute(params)
         return sql
 
-    def __run_compare(self):
+    def run_compare(self):
         conf = "{}/config.txt".format(self.result_root)
         return csisplit.run(conf) and csidiff.run(conf)
 
@@ -246,18 +246,18 @@ class HotCompare(Compare):
     def __init__(self, **kwargs):
         # type: (dict) -> None
 
-        Compare.__init__(CompareType.HOT, **kwargs)
+        super(HotCompare, self).__init__(CompareType.HOT, **kwargs)
 
-    def __get_output_sql(self, bsp_code, create_date):
+    def get_output_sql(self, bsp_code, create_date):
         # type: (str,str) -> str
 
-        sql_text = pkgutil.get_data(__package__, "resources/get_output_of_hot.sql").decode(encoding="utf-8")
+        sql_text = pkgutil.get_data(__package__, "resources/get_output_of_hot.sql")
         sql_template = string.Template(sql_text)
 
         params = dict(bsp=bsp_code, date=create_date)
         sql = sql_template.substitute(params)
         return sql
 
-    def __run_compare(self):
+    def run_compare(self):
         conf = "{}/config.txt".format(self.result_root)
         return hotsplit.run(conf) and hotdiff.run(conf)

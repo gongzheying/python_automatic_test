@@ -44,7 +44,7 @@ def run(conf_path=CONF_PATH):
 
     return True
 
-class CompareDiff:
+class CompareDiff(object):
 
     def __init__(self, old_split_dir, new_split_dir, result_path):
         # type: (str,str,str) -> CompareDiff
@@ -89,7 +89,7 @@ class CompareDiff:
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->dict
         entities = list()
-        files = dict()
+        split_files = dict()
         for root, dirs, files in os.walk(split_root_dir):
             for name in files:
                 # split_root_dir/origin_hot_file/agent_code/ticket_number/***
@@ -103,11 +103,11 @@ class CompareDiff:
                     entities.append(SplitFileInfoNew(path, split_root_dir, full_name, file_name))
                 else:
                     entities.append(SplitFileInfoOld(path, split_root_dir, full_name, file_name))
-                files[file_name] = path
+                split_files[file_name] = path
 
         if len(entities) > 0:
             filedao.add(entities, new)
-        return files
+        return split_files
 
     def __compare_more_file(self, file_map, ref_file_map, diff_writer, new):
         # type: (dict,dict,DictWriter,bool)->None

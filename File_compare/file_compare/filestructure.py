@@ -1,7 +1,9 @@
+import pkgutil
+
 from lxml import etree
 
 
-class CompareRoot:
+class CompareRoot(object):
     __type = ""
     __length = 0
     __content_name_position = 0
@@ -39,11 +41,10 @@ class CompareRoot:
     def __get_root_from_xml(file):
         # type: (str) -> CompareRoot
 
-        xml_text = "<file/>"
-        with open(file, "rt") as xml:
-            xml_text = xml.read()
+        xml_text = pkgutil.get_data(__package__, file)
+        xsd_text = pkgutil.get_data(__package__, "resources/compare.xsd")
 
-        schema = etree.XMLSchema(file="resources/compare.xsd")
+        schema = etree.XMLSchema(etree.XML(xsd_text))
 
         parser = etree.XMLParser(schema=schema)
         root = etree.XML(xml_text, parser=parser)
@@ -88,7 +89,7 @@ class CompareRoot:
         return CompareRoot.__get_root_from_xml("resources/comparecsi.xml")
 
 
-class RecordFormat:
+class RecordFormat(object):
     __name = ""
     __contents = dict()
 
@@ -108,7 +109,7 @@ class RecordFormat:
         return self.__contents.get(key)
 
 
-class RecordContent:
+class RecordContent(object):
     __name = ""
     __check_canx = False
     __element_name = ""
@@ -176,7 +177,7 @@ class RecordContent:
         return self.__element_map.keys()
 
 
-class CompareElement:
+class CompareElement(object):
     __name = ""
     __position = 0
     __length = 0
@@ -267,7 +268,7 @@ class CompareElement:
         return self.__csi_date
 
 
-class CompareRecord:
+class CompareRecord(object):
     __record_line = None
     __content = None
     __element_map = dict()
