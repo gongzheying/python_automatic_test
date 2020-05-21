@@ -211,22 +211,26 @@ def query_more_files(more_files, index, new):
         cursor = conn.cursor()
 
         if new:
-            cursor.execute("""
+            sql = """
             select path,rootpath,fullname,filename from FC_SPLIT_FILE_INF_NEW 
             where filename not in ({})  
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
-            """.format(more_files, index))
+            """.format(more_files, index)
+            print "find more file sql:{}".format(sql)
+            cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
                 res.append(SplitFileInfoNew(row[0], row[1], row[2], row[3]))
         else:
-            cursor.execute("""
+            sql = """
             select path,rootpath,fullname,filename from FC_SPLIT_FILE_INF_NEW 
             where filename not in ({})  
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
-            """.format(more_files, index))
+            """.format(more_files, index)
+            print "find more file sql:{}".format(sql)
+            cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
                 res.append(SplitFileInfoOld(row[0], row[1], row[2], row[3]))

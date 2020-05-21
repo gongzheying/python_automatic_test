@@ -44,7 +44,7 @@ class Compare(object):
         self.__base_root = kwargs.get("baseRoot", cf.get("ibsp", "outbound_baseline_root"))
 
         home_dir = os.environ.get("HOME", ".")
-        self.__result_root = "{}/.filecompare/{}/result_path".format(home_dir, self.__type)
+        self.__result_root = "{}/.filecompare/{}/resultPath".format(home_dir, self.__type)
         self.__new_file_path = "{}/.filecompare/{}/new".format(home_dir, self.__type)
         self.__old_file_path = "{}/.filecompare/{}/old".format(home_dir, self.__type)
         self.__new_app_path = "{}/.filecompare/{}/newPath".format(home_dir, self.__type)

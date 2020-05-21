@@ -96,7 +96,7 @@ class CompareCSIDiff(object):
             page += 1
 
     def __compare_file(self, vo, diff_writer):
-        # type : (SplitFileInfoVO, DictWriter) -> None
+        # type: (SplitFileInfoVO, DictWriter) -> None
 
         old_file = vo.full_name
         new_file = vo.new_full_name
@@ -239,7 +239,7 @@ class CompareCSIDiff(object):
         return False
 
     def __get_group(self, record_format, index, lines):
-        # type : (RecordFormat,int,list) -> list
+        # type: (RecordFormat,int,list) -> list
 
         group = list()
         while index < len(lines):
@@ -446,7 +446,7 @@ class CompareCSIDiff(object):
                     self.__logs.append(error)
 
     def __process_log(self, filename, diff_writer):
-        # type : (str,DictWriter) -> None
+        # type: (str,DictWriter) -> None
 
         # If the current file and the previous file directory are different, replace
         # the airline code, output logs, empty the log list and airline code.
@@ -490,7 +490,7 @@ class CompareCSIDiff(object):
         # type: (dict,dict,DictWriter,bool)->None
 
         #  Less entire source files
-        file_names = ['temp']
+        file_names = ["'temp'"]
         for key in file_map:
             if key not in ref_file_map:
                 file_names.append("'{}'".format(key))
@@ -550,7 +550,7 @@ class CompareCSIDiff(object):
         return ""
 
     def __get_element(self, line):
-        # type : (str) -> str
+        # type: (str) -> str
         return line[0:3]
 
     def __refresh_file_list(self, split_root_dir, new):

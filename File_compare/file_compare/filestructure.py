@@ -35,7 +35,7 @@ class CompareRoot(object):
 
     def format(self, key):
         # type: (str) -> RecordFormat
-        return self.__formats.get(key)
+        return self.__formats.get(key, RecordFormat())
 
     @staticmethod
     def __get_root_from_xml(file):
@@ -93,7 +93,9 @@ class RecordFormat(object):
     __name = ""
     __contents = dict()
 
-    def __init__(self, name, contents=list()):
+    def __init__(self, name="", contents=list()):
+        # type: (str, list) -> RecordFormat
+
         self.__name = name
 
         for c in contents:
@@ -106,7 +108,7 @@ class RecordFormat(object):
 
     def content(self, key):
         # type: (str) -> RecordContent
-        return self.__contents.get(key)
+        return self.__contents.get(key, RecordContent())
 
 
 class RecordContent(object):
@@ -119,7 +121,7 @@ class RecordContent(object):
     __group_end = False
     __element_map = dict()
 
-    def __init__(self, name, check_canx=False, element_name="", comment="", comment_desc="", group=False,
+    def __init__(self, name="", check_canx=False, element_name="", comment="", comment_desc="", group=False,
                  group_end=False, elements=dict()):
         # type: (str,bool,str,str,str,bool,bool,list) -> RecordContent
         self.__name = name
@@ -170,7 +172,7 @@ class RecordContent(object):
 
     def element(self, key):
         # type: (str) -> CompareElement
-        return self.__element_map.get(key)
+        return self.__element_map.get(key, CompareElement())
 
     def elements(self):
         # type: () -> list
@@ -191,7 +193,8 @@ class CompareElement(object):
     __agent = False
     __csi_date = False
 
-    def __init__(self, name, position, length, old_value="", new_value="", comment="", agent=False, airline=False,
+    def __init__(self, name="", position=0, length=0, old_value="", new_value="", comment="", agent=False,
+                 airline=False,
                  doc_num=False, csi_date=False, desc="", comment_desc=""):
         # type: (str,int,int,str,str,str,bool,bool,bool,bool,str,str) -> CompareElement
         self.__name = name

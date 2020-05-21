@@ -83,11 +83,15 @@ class CompareDiff(object):
         while index <= count:
             index = page * 500
             same_list = filedao.query_same_record(index)
+            print "page:{}:{}".format(page, (count / 500))
+            page += 1
             for vo in same_list:
                 self.__compare_file(vo, diff_writer)
 
     def __refresh_file_list(self, split_root_dir, new):
         # type: (str,bool)->dict
+        print "find file in: {}".format(split_root_dir)
+
         entities = list()
         split_files = dict()
         for root, dirs, files in os.walk(split_root_dir):
@@ -113,9 +117,11 @@ class CompareDiff(object):
         # type: (dict,dict,DictWriter,bool)->None
 
         #  Less entire source files
-        file_names = ['temp']
+        file_names = ["'temp'"]
         for key in file_map:
             if key not in ref_file_map:
+                print "Missing {} file:{}".format("new" if new else "old", key)
+
                 file_names.append("'{}'".format(key))
                 if new:
                     diff_writer.writerow({
@@ -196,7 +202,7 @@ class CompareDiff(object):
         return ""
 
     def __get_element(self, line, name_position, name_length):
-        # type : (str,int,int) -> str
+        # type: (str,int,int) -> str
         element = line[0:3]
         if name_position > 0:
             element += line[name_position - 1: name_position + name_length - 1]
@@ -230,7 +236,7 @@ class CompareDiff(object):
         self.__compare_file_list(old_list, new_list)
 
     def __process_log(self, filename, diff_writer):
-        # type : (str,DictWriter) -> None
+        # type: (str,DictWriter) -> None
 
         # If the current file and the previous file directory are different, replace
         # the airline code, output logs, empty the log list and airline code.
@@ -266,7 +272,7 @@ class CompareDiff(object):
         return False
 
     def __file_same_record(self, record_format, new_element, new_record, old_list, name_position, name_length):
-        # type : (RecordFormat, str,CompareRecord,list, int, int) -> bool
+        # type: (RecordFormat, str,CompareRecord,list, int, int) -> bool
 
         for line in old_list:
             element = self.__get_element(line, name_position, name_length)
@@ -279,7 +285,7 @@ class CompareDiff(object):
         return False
 
     def __compare_file_list(self, old_list, new_list):
-        # type : (list, list) -> Noe
+        # type: (list, list) -> Noe
 
         name_position = self.__root.content_name_position
         name_length = self.__root.length
@@ -408,7 +414,7 @@ class CompareDiff(object):
                 self.__logs.append(error)
 
     def __compare_element(self, record, new_record):
-        # type : (int, CompareRecord,CompareRecord) -> None
+        # type: (int, CompareRecord,CompareRecord) -> None
 
         old_map = record.element_map
         new_map = new_record.element_map
