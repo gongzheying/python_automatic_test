@@ -217,7 +217,6 @@ def query_more_files(more_files, index, new):
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
             """.format(more_files, index)
-            print "find more file sql:{}".format(sql)
             cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:
@@ -229,7 +228,6 @@ def query_more_files(more_files, index, new):
               and path not in (select path from FC_SPLIT_FILE_INF_OLD)
             limit 500 offset {}
             """.format(more_files, index)
-            print "find more file sql:{}".format(sql)
             cursor.execute(sql)
             rows = cursor.fetchall()
             for row in rows:

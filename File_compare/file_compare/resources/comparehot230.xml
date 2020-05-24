@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<file type="hot" contentnameposition="12" length="2">
+	<formats>
+		<format name="default">
+			<contents>
+				<content name="BFH01">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="BSPI" position="14" length="3" output="Y" />
+						<element name="TACN" position="17" length="3" output="Y"
+							oldvalue="" newvalue="" comment="D_HOT_10 GROUP" />
+						<element name="REVN" position="20" length="3" output="Y" />
+						<element name="TPST" position="23" length="4" output="Y" />
+						<element name="PRDA" position="27" length="6" output="Y" />
+						<element name="TIME" position="33" length="4" output="Y" />
+						<element name="ISOC" position="37" length="2" output="Y" />
+						<element name="FSQN" position="39" length="6" output="Y" />
+						<element name="RESD" position="45" length="92" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BCH02">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="PDAI" position="14" length="3" output="Y" />
+						<element name="PCYC" position="17" length="1" output="Y" />
+						<element name="BAED" position="18" length="6" output="Y" />
+						<element name="DYRI" position="24" length="1" output="Y" />
+						<element name="HRED" position="25" length="6" output="Y" />
+						<element name="RESD" position="31" length="106" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BOH03">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="AGTN" position="14" length="8" output="Y"
+							agent="true" />
+						<element name="RMED" position="22" length="6" output="Y" />
+						<element name="CUTP" position="28" length="4" output="Y" />
+						<element name="MLOC" position="32" length="3" output="Y" />
+						<element name="RESD" position="35" length="102" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKT06">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="TRNN" position="14" length="6" output="Y" />
+						
+						<element name="NRID" position="20" length="2" output="Y" />
+						<element name="TREC" position="22" length="3" output="Y"
+							comment="BKT06-TREC ignorable" />
+						
+						<element name="TACN" position="25" length="3" output="Y"
+							airline="true" />
+						<element name="CARF" position="28" length="10" output="Y" />
+						<element name="CSTF" position="38" length="27" output="Y" />
+						<element name="RPSI" position="65" length="4" output="Y" />
+						<element name="ESAC" position="69" length="14" output="Y"/>
+						<element name="DISI" position="83" length="1" output="Y"/>
+						<element name="NRMI" position="84" length="1" output="Y"/>
+						<element name="NRCT" position="85" length="1" output="Y"/>
+						<element name="AREI" position="86" length="1" output="Y"/>
+						<element name="RESD" position="87" length="50" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS24" checkcanx="true" elementname="TRNC"
+					comment="D_HOT_18 CANX">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y"
+							docnum="true" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="CPUI" position="41" length="4" output="Y" />
+						<element name="CJCP" position="45" length="3" output="Y" />
+						<element name="AGTN" position="48" length="8" output="Y" />
+						<element name="RFIC" position="56" length="1" output="Y"/>
+						<element name="TOUR" position="57" length="15" output="Y" />
+						<element name="TRNC" position="72" length="4" output="Y" />
+						<element name="TODC" position="76" length="10" output="Y" />
+						<element name="PNRR" position="86" length="13" output="Y" />
+						<element name="TIIS" position="99" length="4" output="Y"/>
+						<element name="TACC" position="103" length="5" output="Y"/>
+						<element name="RESD" position="108" length="29" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS30">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="COBL" position="41" length="11" output="Y" />
+						<element name="NTFA" position="52" length="11" output="Y" />
+						<element name="TMFT1" position="63" length="8" output="Y" />
+						<element name="TMFA1" position="71" length="11" output="Y" />
+						<element name="TMFT2" position="82" length="8" output="Y" />
+						<element name="TMFA2" position="90" length="11" output="Y" />
+						<element name="TMFT3" position="101" length="8" output="Y"/>
+						<element name="TMFA3" position="109" length="11" output="Y"/>
+						<element name="TDAM" position="120" length="11" output="Y"/>
+						<element name="RESD" position="131" length="2" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS31">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y"/>
+						<element name="SQNR" position="4" length="8" output="Y"/>
+						<element name="STNQ" position="12" length="2" output="Y"/>
+						<element name="DAIS" position="14" length="6" output="Y"/>
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y"/>
+						<element name="CDGT" position="40" length="1" output="Y"/>
+						
+						<element name="SEGI1" position="41" length="1" output="Y"/>
+						<element name="CTAC1" position="42" length="5" output="Y"/>
+						<element name="STAC1" position="47" length="6" output="Y"/>
+						<element name="CTCD1" position="53" length="2" output="Y"/>
+						<element name="CTTP1" position="55" length="3" output="Y"/>
+						<element name="CTRA1" position="58" length="11" output="Y"/>
+						<element name="CUTX1" position="69" length="4" output="Y"/>
+						<element name="CTAA1" position="73" length="11" output="Y"/>
+						
+						<element name="SEGI2" position="84" length="1" output="Y"/>
+						<element name="CTAC2" position="85" length="5" output="Y"/>
+						<element name="STAC2" position="90" length="6" output="Y"/>
+						<element name="CTCD2" position="96" length="2" output="Y"/>
+						<element name="CTTP2" position="98" length="3" output="Y"/>
+						<element name="CTRA2" position="101" length="11" output="Y"/>
+						<element name="CUTX2" position="112" length="4" output="Y"/>
+						<element name="CTAA2" position="116" length="11" output="Y"/>
+						
+						<element name="RESD" position="127" length="6" output="Y"/>
+						<element name="CUTP" position="133" length="4" output="Y"/>
+					</elements>
+				</content>
+				
+				<content name="BKS39">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" /> 
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="STAT" position="41" length="3" output="Y" />
+						<element name="COTP" position="44" length="6" output="Y"
+							oldvalue="      " newvalue="PSC   " comment="D_HOT_5 PSC" />
+						<element name="CORT" position="50" length="5" output="Y" />
+						<element name="COAM" position="55" length="11" output="Y" />
+						<element name="SPTP" position="66" length="6" output="Y" />
+						<element name="SPRT" position="72" length="5" output="Y" />
+						<element name="SPAM" position="77" length="11" output="Y" />
+						<element name="EFRT" position="88" length="5" output="Y" />
+						<element name="EFCO" position="93" length="11" output="Y" />
+						<element name="APBC" position="104" length="11" output="Y" />
+						<element name="RDII" position="115" length="1" output="Y" />
+						<element name="CCAI" position="116" length="1" output="Y"/>
+						<element name="RESD" position="117" length="16" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS42">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="TCTP1" position="41" length="6" output="Y" comment="D_HOT_27"/>
+						<element name="TOCA1" position="47" length="11" output="Y" />
+						<element name="TCTP2" position="58" length="6" output="Y" />
+						<element name="TOCA2" position="64" length="11" output="Y" />
+						<element name="TCTP3" position="75" length="6" output="Y" />
+						<element name="TOCA3" position="81" length="11" output="Y" />
+						<element name="TCTP4" position="92" length="6" output="Y" />
+						<element name="TOCA4" position="98" length="11" output="Y" />
+						<element name="RESD" position="109" length="24" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS45">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="RMED" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="RTDN" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="WAVR" position="41" length="14" output="Y" />
+						<element name="RMIC" position="55" length="5" output="Y" />
+						<element name="RCPN" position="60" length="4" output="Y" />
+						<element name="DIRD" position="64" length="6" output="Y" />
+						<element name="RESD" position="70" length="67" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKS46">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="ORIT" position="41" length="14" output="Y" />
+						<element name="ORIL" position="55" length="3" output="Y" />
+						<element name="ORID" position="58" length="7" output="Y" />
+						<element name="ORIA" position="65" length="8" output="Y" />
+						<element name="ENRS" position="73" length="49" output="Y" />
+						<element name="RESD" position="122" length="15" output="Y" />
+					</elements>
+				</content>
+				
+				<content name="BKS47">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="RMED" position="14" length="6" output="Y"/>
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="NTTP1" position="41" length="1" output="Y"/>
+						<element name="NTTC1" position="42" length="8" output="Y"/>
+						<element name="NTTA1" position="50" length="11" output="Y"/>
+						<element name="NTTP2" position="61" length="1" output="Y"/>
+						<element name="NTTC2" position="62" length="8" output="Y"/>
+						<element name="NTTA2" position="70" length="11" output="Y"/>
+						<element name="NTTP3" position="81" length="1" output="Y"/>
+						<element name="NTTC3" position="82" length="8" output="Y"/>
+						<element name="NTTA3" position="90" length="11" output="Y"/>
+						<element name="NTTP4" position="101" length="1" output="Y"/>
+						<element name="NTTC4" position="102" length="8" output="Y"/>
+						<element name="NTTA4" position="110" length="11" output="Y"/>
+						<element name="RESD" position="121" length="6" output="Y" />
+						<element name="CUTP" position="133" length="67" output="Y" />
+					</elements>
+				</content>
+				
+				<content name="BKI61">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y"/>
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="SEGI" position="41" length="1" output="Y"/>
+						<element name="UTPC" position="42" length="5" output="Y"/>
+						<element name="UPDA" position="47" length="7" output="Y"/>
+						<element name="UPTA" position="54" length="5" output="Y"/>
+						<element name="UPDD" position="59" length="7" output="Y"/>
+						<element name="UPTD" position="66" length="5" output="Y"/>
+						<element name="UPEQ" position="71" length="3" output="Y"/>
+						<element name="RESD" position="74" length="63" output="Y" />
+					</elements>
+				</content>				
+				
+				<content name="BKI62">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y"/>
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="SEGI" position="41" length="1" output="Y"/>
+						<element name="ORAC" position="42" length="5" output="Y"/>
+						<element name="FTDA" position="47" length="7" output="Y"/>
+						<element name="FTDT" position="54" length="5" output="Y"/>
+						<element name="FDTE" position="59" length="5" output="Y"/>
+						<element name="DSTC" position="64" length="5" output="Y"/>
+						<element name="FTAD" position="69" length="7" output="Y"/>
+						<element name="FTAT" position="76" length="5" output="Y"/>
+						<element name="FATE" position="81" length="5" output="Y"/>
+						<element name="RESD" position="86" length="51" output="Y" />
+					</elements>
+				</content>				
+
+				<content name="BKI63">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="SEGI" position="41" length="1" output="Y" />
+						<element name="STPO" position="42" length="1" output="Y" />
+						<element name="NBDA" position="43" length="5" output="Y" />
+						<element name="NADA" position="48" length="5" output="Y" />
+						<element name="ORAC" position="53" length="5" output="Y" />
+						<element name="DSTC" position="58" length="5" output="Y" />
+						<element name="CARR" position="63" length="3" output="Y" />
+						<element name="CABI" position="66" length="1" output="Y" />
+						<element name="FTNR" position="67" length="5" output="Y" />
+						<element name="RBKD" position="72" length="2" output="Y" />
+						<element name="FTDA" position="74" length="7" output="Y" />
+						<element name="FTDT" position="81" length="5" output="Y" />
+						<element name="FBST" position="86" length="2" output="Y" />
+						<element name="FBAL" position="88" length="3" output="Y" />
+						<element name="FBTD" position="91" length="15" output="Y" />
+						<element name="FFRF" position="106" length="20" output="Y" />
+						<element name="FCPT" position="126" length="3" output="Y"/>
+						<element name="COGI" position="129" length="1" output="Y"/>
+						<element name="EQCD" position="130" length="3" output="Y"/>
+						<element name="RESD" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+
+				<content name="BAR64" comment="D_HOT_34 CANX-BAR64">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" /> 
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="FARE" position="41" length="12" output="Y" />
+						<element name="TKMI" position="53" length="1" output="Y" />
+						<element name="EQFR" position="54" length="12" output="Y" />
+						<element name="TOTL" position="66" length="12" output="Y" />
+						<element name="SASI" position="78" length="4" output="Y" />
+						<element name="FCMI" position="82" length="1" output="Y" />
+						<element name="BAID" position="83" length="6" output="Y" />
+						<element name="BEOT" position="89" length="1" output="Y" />
+						<element name="FCPI" position="90" length="1" output="Y" />
+						<element name="AENT" position="91" length="8" output="Y"/>
+						<element name="RESD" position="99" length="38" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BAR65" comment="D_HOT_3 CANX-BAR65">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="PXNM" position="41" length="49" output="Y" />
+						<element name="PXDA" position="90" length="29" output="Y" />
+						<element name="DOBR" position="119" length="7" output="Y"/>
+						<element name="PXTP" position="126" length="3" output="Y"/>
+						<element name="RESD" position="129" length="8" output="Y"/>
+					</elements>
+				</content>
+
+				<content name="BAR66">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="FPSN" position="41" length="1" output="Y" />
+						<element name="FPIN" position="42" length="50" output="Y" />
+						<element name="RESD" position="92" length="45" output="Y" />
+					</elements>
+				</content>
+				
+				<content name="BAR67">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="TXSN" position="41" length="2" output="Y" />
+						<element name="TXID" position="43" length="4" output="Y" />
+						<element name="TXIN" position="47" length="70" output="Y" />
+						<element name="RESD" position="117" length="20" output="Y" />
+					</elements>
+				</content>
+				
+				<content name="BMD75">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="EMCP" position="41" length="1" output="Y" />
+						<element name="EMCV" position="42" length="11" output="Y" />
+						<element name="EMRT" position="53" length="14" output="Y" />
+						<element name="EMRC" position="67" length="1" output="Y" />
+						<element name="EMST" position="68" length="1" output="Y"/>
+						<element name="EMSC" position="69" length="3" output="Y" />
+						<element name="EMOC" position="72" length="3" output="Y" />
+						<element name="XBOA" position="75" length="1" output="Y" />
+						<element name="XBCT" position="76" length="3" output="Y"/>
+						<element name="XBRU" position="79" length="12" output="Y" />
+						<element name="XBNE" position="91" length="12" output="Y" />
+						<element name="EMCI" position="103" length="1" output="Y" />
+						<element name="EMNS" position="104" length="3" output="Y"/>
+						<element name="EMCR" position="107" length="3" output="Y"/>
+						<element name="EMAG" position="110" length="3" output="Y"/>
+						<element name="EMSG" position="113" length="3" output="Y"/>
+						<element name="EMIC" position="116" length="1" output="Y"/>						
+						<element name="RESD" position="117" length="16" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BMD76">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="EMCP" position="41" length="1" output="Y" />
+						<element name="EMRM" position="42" length="70" output="Y" />
+						<element name="RESD" position="112" length="25" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BKF81">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="TDNR" position="26" length="14" output="Y" />
+						<element name="CDGT" position="40" length="1" output="Y" />
+						<element name="FRCS" position="41" length="1" output="Y" />
+						<element name="FRCA" position="42" length="87" output="Y" />
+						<element name="RESD" position="129" length="8" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BCC82">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="FPTP" position="26" length="10" output="Y"/>
+						<element name="FPTI" position="36" length="25" output="Y"/>
+						<element name="RESD" position="61" length="76" output="Y"/>
+					</elements>
+				</content>
+				
+				<content name="BCC83">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="FPTP" position="26" length="10" output="Y"/>
+						<element name="CASN" position="36" length="2" output="Y"/>
+						<element name="CATI" position="38" length="99" output="Y"/>
+					</elements>
+				</content>
+				
+				<content name="BCX83">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="FPTP" position="26" length="10" output="Y"/>
+						<element name="CASN" position="36" length="2" output="Y"/>
+						<element name="TDSD" position="38" length="99" output="Y"/>
+					</elements>
+				</content>
+				
+				<content name="BKP84">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="DAIS" position="14" length="6" output="Y" />
+						<element name="TRNN" position="20" length="6" output="Y"/>
+						<element name="FPTP" position="26" length="10" output="Y" />
+						<element name="FPAM" position="36" length="11" output="Y" />
+						<element name="FPAC" position="47" length="19" output="Y"
+							comment="FPAC ignorable" />
+						<element name="EXDA" position="66" length="4" output="Y" />
+						<element name="EXPC" position="70" length="2" output="Y" />
+						<element name="APLC" position="72" length="6" output="Y" />
+						<element name="INVN" position="78" length="14" output="Y"
+							comment="D_CSI_23" />
+						<element name="INVD" position="92" length="6" output="Y"
+							comment="INVD ignorable" />
+						<element name="REMT" position="98" length="11" output="Y" />
+						<element name="CVVR" position="109" length="1" output="Y" />
+						<element name="RESD" position="110" length="23" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BOT93" checkcanx="true" elementname="TRNC"
+					comment="D_HOT_3 CANX-BOT93">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="AGTN" position="14" length="8" output="Y" />
+						<element name="RMED" position="22" length="6" output="Y" />
+						<element name="GROS" position="28" length="15" output="Y" />
+						<element name="TREM" position="43" length="15" output="Y" />
+						<element name="TCOM" position="58" length="15" output="Y" />
+						<element name="TTMF" position="73" length="15" output="Y" />
+						<element name="TRNC" position="88" length="4" output="Y" />
+						<element name="TTCA" position="92" length="15" output="Y" />						
+						<element name="RESD" position="107" length="26" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BOT94">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="AGTN" position="14" length="8" output="Y" />
+						<element name="RMED" position="22" length="6" output="Y" />
+						<element name="GROS" position="28" length="15" output="Y" />
+						<element name="TREM" position="43" length="15" output="Y" />
+						<element name="TCOM" position="58" length="15" output="Y" />
+						<element name="TTMF" position="73" length="15" output="Y" />
+						<element name="TTCA" position="88" length="15" output="Y" />						
+						<element name="RESD" position="103" length="30" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BCT95">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+					    <element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="PDAI" position="14" length="3" output="Y"/>
+						<element name="PCYC" position="17" length="1" output="Y"/>
+						<element name="OFCC" position="18" length="5" output="Y"/>
+						<element name="GROS" position="23" length="15" output="Y" />
+						<element name="TREM" position="38" length="15" output="Y" />
+						<element name="TCOM" position="53" length="15" output="Y" />
+						<element name="TTMF" position="68" length="15" output="Y" />
+						<element name="TTCA" position="83" length="15" output="Y" />						
+						<element name="RESD" position="98" length="35" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+
+				<content name="BFT99">
+					<elements>
+						<element name="SMSG" position="1" length="3" output="Y" />
+						<element name="SQNR" position="4" length="8" output="N" />
+						<element name="STNQ" position="12" length="2" output="Y" />
+						<element name="BSPI" position="14" length="3" output="Y" />
+						<element name="OFCC" position="17" length="5" output="Y" comment="AGTN Number is not same"/> 
+						<element name="GROS" position="22" length="15" output="Y" />
+						<element name="TREM" position="37" length="15" output="Y" />
+						<element name="TCOM" position="52" length="15" output="Y" />
+						<element name="TTMF" position="67" length="15" output="Y" />
+						<element name="TTCA" position="82" length="15" output="Y" />
+						<element name="RESD" position="97" length="36" output="Y" />
+						<element name="CUTP" position="133" length="4" output="Y" />
+					</elements>
+				</content>
+			</contents>
+		</format>
+	</formats>
+</file>

@@ -44,6 +44,7 @@ def run(conf_path=CONF_PATH):
 
     return True
 
+
 class CompareDiff(object):
 
     def __init__(self, old_split_dir, new_split_dir, result_path):
@@ -435,9 +436,6 @@ class CompareDiff(object):
                         comment = ""
 
                     if element_old_value is not None and value != element_old_value:
-                        comment = ""
-
-                    if record.check_length(key) and value.strip() != "":
                         comment = ""
 
                     if "CARF" == key and new_value.find(value.strip()) > -1:

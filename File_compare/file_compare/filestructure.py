@@ -35,7 +35,8 @@ class CompareRoot(object):
 
     def format(self, key):
         # type: (str) -> RecordFormat
-        return self.__formats.get(key, RecordFormat())
+        f = self.__formats.get(key)  # type: RecordFormat
+        return f
 
     @staticmethod
     def __get_root_from_xml(file):
@@ -82,11 +83,13 @@ class CompareRoot(object):
 
     @staticmethod
     def get_hot_root():
-        return CompareRoot.__get_root_from_xml("resources/comparehot.xml")
+        # type: () -> CompareRoot
+        return CompareRoot.__get_root_from_xml("resources/comparehot230.xml")
 
     @staticmethod
     def get_csi_root():
-        return CompareRoot.__get_root_from_xml("resources/comparecsi.xml")
+        # type: () -> CompareRoot
+        return CompareRoot.__get_root_from_xml("resources/comparecsi230.xml")
 
 
 class RecordFormat(object):
@@ -108,7 +111,8 @@ class RecordFormat(object):
 
     def content(self, key):
         # type: (str) -> RecordContent
-        return self.__contents.get(key, RecordContent())
+        f = self.__contents.get(key)  # type: RecordContent
+        return f
 
 
 class RecordContent(object):
@@ -121,7 +125,7 @@ class RecordContent(object):
     __group_end = False
     __element_map = dict()
 
-    def __init__(self, name="", check_canx=False, element_name="", comment="", comment_desc="", group=False,
+    def __init__(self, name, check_canx=False, element_name="", comment="", comment_desc="", group=False,
                  group_end=False, elements=dict()):
         # type: (str,bool,str,str,str,bool,bool,list) -> RecordContent
         self.__name = name
@@ -172,7 +176,8 @@ class RecordContent(object):
 
     def element(self, key):
         # type: (str) -> CompareElement
-        return self.__element_map.get(key, CompareElement())
+        f = self.__element_map.get(key)  # type: CompareElement
+        return f
 
     def elements(self):
         # type: () -> list
@@ -193,9 +198,8 @@ class CompareElement(object):
     __agent = False
     __csi_date = False
 
-    def __init__(self, name="", position=0, length=0, old_value="", new_value="", comment="", agent=False,
-                 airline=False,
-                 doc_num=False, csi_date=False, desc="", comment_desc=""):
+    def __init__(self, name, position, length, old_value="", new_value="", comment="", agent=False,
+                 airline=False, doc_num=False, csi_date=False, desc="", comment_desc=""):
         # type: (str,int,int,str,str,str,bool,bool,bool,bool,str,str) -> CompareElement
         self.__name = name
         self.__position = position
@@ -303,8 +307,9 @@ class CompareRecord(object):
         result = self.element_map.get(key)
         if result is None:
             element = self.content.element(key)
-            result = self.record_line[element.position - 1: element.position - 1 + element.length]
-            self.element_map[key] = result
+            if element is not None:
+                result = self.record_line[element.position - 1: element.position - 1 + element.length]
+                self.element_map[key] = result
         return result
 
     def comment(self, key):
@@ -330,10 +335,6 @@ class CompareRecord(object):
     def airline(self, key):
         # type: (str) -> bool
         return self.content.element(key).airline
-
-    def check_length(self, key):
-        # type: (str) -> bool
-        return self.content.element(key).check_length
 
     def csi_date(self, key):
         # type: (str) -> bool
